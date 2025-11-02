@@ -1,7 +1,7 @@
 use eframe::egui;
 use crate::models::KeyBindings;
 use crate::parser::parse_hyprctl_binds;
-use crate::icons::get_key_icon;
+use crate::icons::get_icon;
 
 pub struct KeybindsApp {
     keybindings: KeyBindings,
@@ -65,25 +65,47 @@ impl eframe::App for KeybindsApp {
                     .spacing([10.0, 5.0])
                     .show(ui, |ui| {
                         // Header row
-                        ui.strong("  Modifiers");
-                        ui.strong("  Key");
-                        ui.strong("  Command");
                         ui.strong("  Description");
+                        ui.strong("  Keybind");
+                        ui.strong("  Command");
                         ui.end_row();
 
                         // Data rows
                         for entry in filtered {
-                            // Display "-" if modifiers is empty
-                            let modifiers = if entry.modifiers.is_empty() {
+                            // Description (display "-" if empty)
+                            let description = if entry.description.is_empty() {
                                 "  -".to_string()
                             } else {
-                                format!("  {}", entry.modifiers)
+                                format!("  {}", entry.description)
                             };
-                            ui.label(modifiers);
+                            ui.label(description);
 
-                            // Key with icon
-                            let key_display = format!("  {}", get_key_icon(&entry.key));
-                            ui.label(key_display);
+                            ui.horizontal(|ui| {
+                                ui.add_space(4.0);
+                                let frame = egui::Frame::new()
+                                    .inner_margin(egui::Margin::symmetric(4, 1))
+                                    .corner_radius(3.0)
+                                    .stroke(egui::Stroke::new(1.0, ui.visuals().widgets.noninteractive.fg_stroke.color));
+
+                                // Display modifier icons in frames
+                                if !entry.modifiers.is_empty() {
+                                    let modifiers: Vec<&str> = entry.modifiers.split('+').collect();
+                                    for (i, modifier_str) in modifiers.iter().enumerate() {
+                                        frame.show(ui, |ui| {
+                                            ui.label(get_icon(modifier_str));
+                                        });
+                                        if i < modifiers.len() - 1 {
+                                            ui.label("+");
+                                        }
+                                    }
+                                    ui.label("+");
+                                }
+
+                                // Key with frame
+                                frame.show(ui, |ui| {
+                                    ui.label(get_icon(&entry.key));
+                                });
+                            });
 
                             // Command (truncate if too long)
                             let command_display = if entry.command.len() > 50 {
@@ -92,14 +114,6 @@ impl eframe::App for KeybindsApp {
                                 format!("  {}", &entry.command)
                             };
                             ui.label(command_display);
-
-                            // Description (display "-" if empty)
-                            let description = if entry.description.is_empty() {
-                                "  -".to_string()
-                            } else {
-                                format!("  {}", entry.description)
-                            };
-                            ui.label(description);
 
                             ui.end_row();
                         }
