@@ -1,5 +1,23 @@
 use serde::{Deserialize, Serialize};
 
+/// Options for searching keybindings
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SearchOptions {
+    pub keybind: bool,
+    pub command: bool,
+    pub description: bool,
+}
+
+impl Default for SearchOptions {
+    fn default() -> Self {
+        Self {
+            keybind: true,
+            command: true,
+            description: true,
+        }
+    }
+}
+
 /// Keybind entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeyBindEntry {
@@ -24,12 +42,13 @@ impl KeyBindEntry {
     }
 
     /// Check if this entry matches the search query
-    pub fn matches(&self, query: &str) -> bool {
+    pub fn matches(&self, query: &str, options: &SearchOptions) -> bool {
         let query_lower = query.to_lowercase();
-        self.modifiers.to_lowercase().contains(&query_lower)
-            || self.key.to_lowercase().contains(&query_lower)
-            || self.command.to_lowercase().contains(&query_lower)
-            || self.description.to_lowercase().contains(&query_lower)
+        let keybind_match = options.keybind && (self.modifiers.to_lowercase().contains(&query_lower) || self.key.to_lowercase().contains(&query_lower));
+        let command_match = options.command && self.command.to_lowercase().contains(&query_lower);
+        let description_match = options.description && self.description.to_lowercase().contains(&query_lower);
+        
+        keybind_match || command_match || description_match
     }
 }
 
@@ -52,17 +71,22 @@ impl KeyBindings {
     }
 
     /// Filter entries by search query
-    pub fn filter(&self, query: &str) -> Vec<&KeyBindEntry> {
+    pub fn filter(&self, query: &str, options: &SearchOptions) -> Vec<&KeyBindEntry> {
         if query.is_empty() {
             self.entries.iter().collect()
         } else {
-            self.entries.iter().filter(|e| e.matches(query)).collect()
+            self.entries.iter().filter(|e| e.matches(query, options)).collect()
         }
     }
 
     /// Export as JSON
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string_pretty(self)
+    }
+
+    /// Import from JSON
+    pub fn from_json(json: &str) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(json)
     }
 }
 
