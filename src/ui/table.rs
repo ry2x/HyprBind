@@ -120,6 +120,7 @@ pub fn render_table(
     column_visibility: &ColumnVisibility,
     sort_column: SortColumn,
     sort_state: SortState,
+    selected_row: Option<usize>,
 ) -> Option<SortColumn> {
     let visible_count = [
         column_visibility.keybind,
@@ -190,23 +191,45 @@ pub fn render_table(
             }
         })
         .body(|mut body| {
-            for entry in filtered {
+            for (idx, entry) in filtered.iter().enumerate() {
                 body.row(32.0, |mut row| {
                     if column_visibility.keybind {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
+                            if let Some(sel) = selected_row {
+                                if sel == idx {
+                                    let rect = ui.max_rect();
+                                    let hl = if ui.visuals().dark_mode { egui::Color32::from_rgb(50, 60, 80) } else { egui::Color32::from_rgb(210, 220, 245) };
+                                    ui.painter().rect_filled(rect, 0.0, hl);
+                                    ui.scroll_to_rect(rect, None);
+                                }
+                            }
                             render_keybind_cell(ui, entry);
                         });
                     }
                     if column_visibility.description {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
+                            if let Some(sel) = selected_row {
+                                if sel == idx {
+                                    let rect = ui.max_rect();
+                                    let hl = if ui.visuals().dark_mode { egui::Color32::from_rgb(50, 60, 80) } else { egui::Color32::from_rgb(210, 220, 245) };
+                                    ui.painter().rect_filled(rect, 0.0, hl);
+                                }
+                            }
                             render_description_cell(ui, entry);
                         });
                     }
                     if column_visibility.command {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
+                            if let Some(sel) = selected_row {
+                                if sel == idx {
+                                    let rect = ui.max_rect();
+                                    let hl = if ui.visuals().dark_mode { egui::Color32::from_rgb(50, 60, 80) } else { egui::Color32::from_rgb(210, 220, 245) };
+                                    ui.painter().rect_filled(rect, 0.0, hl);
+                                }
+                            }
                             render_command_cell(ui, entry);
                         });
                     }

@@ -17,6 +17,7 @@ pub struct KeybindsApp {
     logo_texture: Option<egui::TextureHandle>,
     zen_mode: bool,
     show_zen_info_modal: bool,
+    selected_row: Option<usize>,
 }
 
 impl KeybindsApp {
@@ -38,6 +39,7 @@ impl KeybindsApp {
             logo_texture: None,
             zen_mode: false,
             show_zen_info_modal: false,
+            selected_row: None,
         };
         if let Some(cfg) = crate::config::load() {
             app.theme = cfg.theme;
@@ -181,6 +183,25 @@ impl eframe::App for KeybindsApp {
             // Get filtered and sorted keybindings
             let filtered = self.get_filtered_and_sorted_entries();
 
+            // Keyboard navigation for table (when search/options not focused)
+            let search_bar_focused = ctx.memory(|m| m.focused() == Some(egui::Id::new("search_bar")));
+            if !search_bar_focused && !self.show_options_window {
+                let len = filtered.len();
+                if len > 0 {
+                    let mut sel = self.selected_row.unwrap_or(0);
+                    let mut changed = false;
+                    if ctx.input(|i| i.key_pressed(egui::Key::ArrowDown)) { sel = (sel + 1).min(len - 1); changed = true; }
+                    if ctx.input(|i| i.key_pressed(egui::Key::ArrowUp)) { sel = sel.saturating_sub(1); changed = true; }
+                    if ctx.input(|i| i.key_pressed(egui::Key::PageDown)) { sel = (sel + 10).min(len - 1); changed = true; }
+                    if ctx.input(|i| i.key_pressed(egui::Key::PageUp)) { sel = sel.saturating_sub(10); changed = true; }
+                    if ctx.input(|i| i.key_pressed(egui::Key::Home)) { sel = 0; changed = true; }
+                    if ctx.input(|i| i.key_pressed(egui::Key::End)) { sel = len - 1; changed = true; }
+                    if changed { self.selected_row = Some(sel); }
+                } else {
+                    self.selected_row = None;
+                }
+            }
+
             // Render table
             if let Some(clicked_column) = crate::ui::table::render_table(
                 ui,
@@ -188,6 +209,7 @@ impl eframe::App for KeybindsApp {
                 &self.column_visibility,
                 self.sort_column,
                 self.sort_state,
+                self.selected_row,
             ) {
                 self.handle_sort_click(clicked_column);
             }
