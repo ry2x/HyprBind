@@ -15,6 +15,8 @@ pub struct KeybindsApp {
     theme: Theme,
     column_visibility: ColumnVisibility,
     logo_texture: Option<egui::TextureHandle>,
+    zen_mode: bool,
+    show_zen_info_modal: bool,
 }
 
 impl KeybindsApp {
@@ -31,6 +33,8 @@ impl KeybindsApp {
                 theme: Theme::Dark,
                 column_visibility: ColumnVisibility::default(),
                 logo_texture: None,
+                zen_mode: false,
+                show_zen_info_modal: false,
             },
             Err(e) => Self {
                 keybindings: KeyBindings::new(),
@@ -43,6 +47,8 @@ impl KeybindsApp {
                 theme: Theme::Dark,
                 column_visibility: ColumnVisibility::default(),
                 logo_texture: None,
+                zen_mode: false,
+                show_zen_info_modal: false,
             },
         }
     }
@@ -110,10 +116,14 @@ impl eframe::App for KeybindsApp {
             }
         }
 
-        // Keyboard shortcut for focusing search bar
+        // ZEN mode keyboard shortcuts
+        crate::ui::zen::handle_zen_keyboard_shortcuts(ctx, &mut self.zen_mode);
+        
+        // Keyboard shortcuts
         let search_bar_focused = ctx.memory(|m| m.focused() == Some(egui::Id::new("search_bar")));
         
-        if !search_bar_focused && ctx.input(|i| i.key_pressed(egui::Key::Slash)) {
+        // Slash key to focus search bar (only when not in ZEN mode)
+        if !self.zen_mode && !search_bar_focused && ctx.input(|i| i.key_pressed(egui::Key::Slash)) {
             ctx.memory_mut(|m| m.request_focus(egui::Id::new("search_bar")));
             // Consume the slash event so it doesn't get typed
             ctx.input_mut(|i| {
@@ -127,6 +137,15 @@ impl eframe::App for KeybindsApp {
             Theme::Light => ctx.set_visuals(egui::Visuals::light()),
         }
 
+        // ZEN mode info modal
+        if self.show_zen_info_modal {
+            crate::ui::zen::render_zen_info_modal(
+                ctx,
+                &mut self.show_zen_info_modal,
+                &mut self.show_options_window,
+            );
+        }
+
         // Options window
         if self.show_options_window {
             crate::ui::options::render_options_window(
@@ -135,21 +154,27 @@ impl eframe::App for KeybindsApp {
                 &mut self.theme,
                 &mut self.column_visibility,
                 &mut self.search_options,
+                &mut self.zen_mode,
+                &mut self.show_zen_info_modal,
             );
         }
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            // Render header
-            crate::ui::header::render_header(ui, &mut self.show_options_window, &self.error_message, self.logo_texture.as_ref());
-            
-            // Render search bar
-            crate::ui::header::render_search_bar(ui, &mut self.search_query);
+            // Only render header, search bar, and stats in non-ZEN mode
+            if !self.zen_mode {
+                // Render header
+                crate::ui::header::render_header(ui, &mut self.show_options_window, &self.error_message, self.logo_texture.as_ref());
+                
+                // Render search bar
+                crate::ui::header::render_search_bar(ui, &mut self.search_query);
+
+                // Render stats bar
+                let filtered = self.get_filtered_and_sorted_entries();
+                crate::ui::header::render_stats_bar(ui, self.keybindings.entries.len(), filtered.len());
+            }
 
             // Get filtered and sorted keybindings
             let filtered = self.get_filtered_and_sorted_entries();
-            
-            // Render stats bar
-            crate::ui::header::render_stats_bar(ui, self.keybindings.entries.len(), filtered.len());
 
             // Render table
             if let Some(clicked_column) = crate::ui::table::render_table(

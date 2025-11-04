@@ -8,6 +8,8 @@ pub fn render_options_window(
     theme: &mut Theme,
     column_visibility: &mut ColumnVisibility,
     search_options: &mut SearchOptions,
+    zen_mode: &mut bool,
+    show_zen_info_modal: &mut bool,
 ) {
     egui::Window::new("Options")
         .open(show_options_window)
@@ -16,8 +18,49 @@ pub fn render_options_window(
             ui.heading("\u{f050e} Theme");
             ui.add_space(5.0);
             ui.horizontal(|ui| {
-                ui.radio_value(theme, Theme::Dark, "\u{f0594} Dark");
-                ui.radio_value(theme, Theme::Light, "\u{e30d} Light");
+                // Dark label with icon
+                let dark_text = egui::RichText::new("\u{f0594} Dark").size(13.0);
+                ui.label(dark_text);
+                
+                ui.add_space(8.0);
+                
+                // Toggle switch (smaller)
+                let mut is_light = matches!(theme, Theme::Light);
+                let desired_size = egui::vec2(36.0, 18.0);
+                let (rect, response) = ui.allocate_exact_size(desired_size, egui::Sense::click());
+                
+                if response.clicked() {
+                    is_light = !is_light;
+                    *theme = if is_light { Theme::Light } else { Theme::Dark };
+                }
+                
+                let bg_color = if is_light {
+                    egui::Color32::from_rgb(100, 149, 237)
+                } else {
+                    egui::Color32::from_rgb(60, 60, 60)
+                };
+                
+                let knob_offset = if is_light { 
+                    rect.width() - rect.height() 
+                } else { 
+                    0.0 
+                };
+                
+                let painter = ui.painter();
+                painter.rect_filled(rect, rect.height() / 2.0, bg_color);
+                
+                let knob_radius = rect.height() / 2.0 - 2.5;
+                let knob_center = egui::pos2(
+                    rect.min.x + rect.height() / 2.0 + knob_offset,
+                    rect.center().y,
+                );
+                painter.circle_filled(knob_center, knob_radius, egui::Color32::WHITE);
+                
+                ui.add_space(8.0);
+                
+                // Light label with icon
+                let light_text = egui::RichText::new("\u{e30d} Light").size(13.0);
+                ui.label(light_text);
             });
             ui.add_space(10.0);
             
@@ -40,5 +83,18 @@ pub fn render_options_window(
             ui.checkbox(&mut search_options.keybind, "\u{ea65} Keybind");
             ui.checkbox(&mut search_options.description, "\u{f29e} Description");
             ui.checkbox(&mut search_options.command, "\u{ebc4} Command");
+            ui.add_space(10.0);
+            
+            ui.separator();
+            ui.add_space(10.0);
+            
+            ui.heading("\u{f06e} ZEN Mode");
+            ui.add_space(5.0);
+            ui.label("Hide all distractions and focus on keybindings.");
+            ui.add_space(5.0);
+            if ui.button(egui::RichText::new("Enable ZEN Mode").size(14.0)).clicked() {
+                *zen_mode = true;
+                *show_zen_info_modal = true;
+            }
         });
 }
