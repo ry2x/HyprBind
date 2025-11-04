@@ -84,7 +84,8 @@ bind = SUPER, F, exec, thunar  # description is empty
 ## Planning
 
 - Export keybinds (JSON)
-- Custom color schemes (Support Matugen themes)
+- Custom color schemes (Support Matugen themes)]
+- Generate config file under `~/.config/hyprbind/` to save user preferences
 
 
 ## Tech
