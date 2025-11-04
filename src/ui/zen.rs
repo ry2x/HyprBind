@@ -5,6 +5,13 @@ pub fn render_zen_info_modal(
     show_zen_info_modal: &mut bool,
     show_options_window: &mut bool,
 ) {
+    // Close modal with Enter key
+    if ctx.input(|i| i.key_pressed(egui::Key::Enter)) {
+        *show_zen_info_modal = false;
+        *show_options_window = false;
+        return;
+    }
+
     egui::Window::new("ZEN Mode")
         .collapsible(false)
         .resizable(false)

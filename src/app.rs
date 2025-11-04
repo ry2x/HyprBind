@@ -153,6 +153,11 @@ impl eframe::App for KeybindsApp {
             );
         }
 
+        // Close options with ESC
+        if self.show_options_window && ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
+            self.show_options_window = false;
+        }
+
         // Options window
         if self.show_options_window {
             crate::ui::options::render_options_window(
