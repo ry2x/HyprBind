@@ -11,6 +11,29 @@ use app::KeybindsApp;
 use font::setup_custom_fonts;
 
 fn main() -> Result<(), eframe::Error> {
+    // JSON output mode: `--json` or `-j`
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|a| a == "--json" || a == "-j") {
+        match parser::parse_hyprctl_binds() {
+            Ok(kb) => {
+                match kb.to_json() {
+                    Ok(s) => {
+                        println!("{}", s);
+                        return Ok(())
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to serialize JSON: {}", e);
+                        std::process::exit(1);
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("Failed to load keybindings: {}", e);
+                std::process::exit(1);
+            }
+        }
+    }
+
     let icon_data = load_icon();
     
     let options = eframe::NativeOptions {

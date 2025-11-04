@@ -10,6 +10,7 @@ pub fn render_options_window(
     search_options: &mut SearchOptions,
     zen_mode: &mut bool,
     show_zen_info_modal: &mut bool,
+    export_request: &mut bool,
 ) {
     egui::Window::new("Options")
         .open(show_options_window)
@@ -128,6 +129,16 @@ pub fn render_options_window(
                     zen_mode: *zen_mode,
                 };
                 let _ = crate::config::save(&cfg);
+            }
+
+            ui.add_space(10.0);
+            ui.separator();
+            ui.add_space(10.0);
+
+            ui.heading("\u{ebc4} Export");
+            ui.add_space(5.0);
+            if ui.button(egui::RichText::new("Export JSON").size(14.0)).clicked() {
+                *export_request = true;
             }
 
         });

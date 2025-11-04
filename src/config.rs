@@ -31,6 +31,10 @@ fn config_dir() -> PathBuf {
     PathBuf::from(home).join(".config").join("hyprbind")
 }
 
+pub fn export_dir() -> PathBuf {
+    config_dir().join("exports")
+}
+
 fn config_path() -> PathBuf {
     config_dir().join("config.json")
 }

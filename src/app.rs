@@ -18,6 +18,8 @@ pub struct KeybindsApp {
     zen_mode: bool,
     show_zen_info_modal: bool,
     selected_row: Option<usize>,
+    export_request: bool,
+    export_modal_path: Option<String>,
 }
 
 impl KeybindsApp {
@@ -40,6 +42,8 @@ impl KeybindsApp {
             zen_mode: false,
             show_zen_info_modal: false,
             selected_row: None,
+            export_request: false,
+            export_modal_path: None,
         };
         if let Some(cfg) = crate::config::load() {
             app.theme = cfg.theme;
@@ -168,7 +172,42 @@ impl eframe::App for KeybindsApp {
                 &mut self.search_options,
                 &mut self.zen_mode,
                 &mut self.show_zen_info_modal,
+                &mut self.export_request,
             );
+        }
+
+        // Handle export request and show result modal
+        if self.export_request {
+            self.export_request = false;
+            if let Ok(json) = self.keybindings.to_json() {
+                let dir = crate::config::export_dir();
+                let _ = std::fs::create_dir_all(&dir);
+                let epoch = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_secs())
+                    .unwrap_or(0);
+                let file_name = format!("keybindings_{}.json", epoch);
+                let path = dir.join(file_name);
+                if std::fs::write(&path, json).is_ok() {
+                    self.export_modal_path = Some(path.to_string_lossy().to_string());
+                }
+            }
+        }
+        if let Some(ref path) = self.export_modal_path.clone() {
+            egui::Window::new("Exported")
+                .collapsible(false)
+                .resizable(false)
+                .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+                .show(ctx, |ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.label("JSON has been exported to:");
+                        ui.monospace(path);
+                        ui.add_space(10.0);
+                        if ui.button("OK").clicked() || ctx.input(|i| i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Escape)) {
+                            self.export_modal_path = None;
+                        }
+                    });
+                });
         }
 
         egui::CentralPanel::default().show(ctx, |ui| {

@@ -16,6 +16,11 @@ A fast, minimal GUI to view Hyprland keybinds parsed from `hyprctl binds`. Built
 - Compact Dark/Light theme toggle
 - ZEN mode: hide header/search/stats to focus on the table; exit with `Z`
 - Nerd Font icons bundled (modifiers, arrows, media keys, etc.)
+- Keyboard navigation: ↑/↓, PageUp/PageDown, Home/End (auto scroll + row highlight)
+- Options window closes with ESC
+- ZEN info modal closes with Enter
+- JSON export from Options (shows saved path modal)
+- CLI JSON output with `--json` or `-j`
 
 
 ## Screenshot
@@ -54,7 +59,9 @@ cargo build --release
 - Open Options (gear icon):
   - Switch theme (Dark/Light)
   - Choose visible columns and search targets
-  - Enable ZEN mode; a modal appears once. Press `Z` to exit
+  - Enable ZEN mode; a modal appears once. Press `Z` to exit (info modal: Enter to close)
+  - Export JSON → saves to `~/.config/hyprbind/exports/keybindings_<epoch>.json` and shows a modal with the path
+  - Press ESC to close Options
 
 
 ## Add descriptions to your keybinds
@@ -81,14 +88,21 @@ bind = SUPER, F, exec, thunar  # description is empty
 - For very long keybinds/commands, overflowing text is clipped by the column; hover to see the full command.
 
 
+## JSON output
+
+- Print keybinds as JSON and exit:
+  - cargo run -- --json
+  - or after installing: hyprbind --json
+
+
 ## Config
 
 - Config file: `~/.config/hyprbind/config.json`
 - Preferences are saved automatically on change and loaded on startup
 
+
 ## Planning
 
-- Export keybinds (JSON)
 - Custom color schemes (Support Matugen themes)
 
 
