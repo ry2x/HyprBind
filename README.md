@@ -81,11 +81,15 @@ bind = SUPER, F, exec, thunar  # description is empty
 - For very long keybinds/commands, overflowing text is clipped by the column; hover to see the full command.
 
 
+## Config
+
+- Config file: `~/.config/hyprbind/config.json`
+- Preferences are saved automatically on change and loaded on startup
+
 ## Planning
 
 - Export keybinds (JSON)
-- Custom color schemes (Support Matugen themes)]
-- Generate config file under `~/.config/hyprbind/` to save user preferences
+- Custom color schemes (Support Matugen themes)
 
 
 ## Tech

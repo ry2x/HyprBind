@@ -4,6 +4,7 @@ mod icons;
 mod models;
 mod parser;
 mod ui;
+mod config;
 
 use eframe::egui;
 use app::KeybindsApp;

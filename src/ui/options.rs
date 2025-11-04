@@ -32,6 +32,14 @@ pub fn render_options_window(
                 if response.clicked() {
                     is_light = !is_light;
                     *theme = if is_light { Theme::Light } else { Theme::Dark };
+                    // autosave on theme change
+                    let cfg = crate::config::UserConfig {
+                        theme: *theme,
+                        column_visibility: column_visibility.clone(),
+                        search_options: search_options.clone(),
+                        zen_mode: *zen_mode,
+                    };
+                    let _ = crate::config::save(&cfg);
                 }
                 
                 let bg_color = if is_light {
@@ -69,9 +77,18 @@ pub fn render_options_window(
             
             ui.heading("\u{f0db} Visible Columns");
             ui.add_space(5.0);
-            ui.checkbox(&mut column_visibility.keybind, "\u{ea65} Keybind");
-            ui.checkbox(&mut column_visibility.description, "\u{f29e} Description");
-            ui.checkbox(&mut column_visibility.command, "\u{ebc4} Command");
+            let r1 = ui.checkbox(&mut column_visibility.keybind, "\u{ea65} Keybind");
+            let r2 = ui.checkbox(&mut column_visibility.description, "\u{f29e} Description");
+            let r3 = ui.checkbox(&mut column_visibility.command, "\u{ebc4} Command");
+            if r1.changed() || r2.changed() || r3.changed() {
+                let cfg = crate::config::UserConfig {
+                    theme: *theme,
+                    column_visibility: column_visibility.clone(),
+                    search_options: search_options.clone(),
+                    zen_mode: *zen_mode,
+                };
+                let _ = crate::config::save(&cfg);
+            }
             ui.add_space(10.0);
             
             ui.separator();
@@ -80,9 +97,18 @@ pub fn render_options_window(
             ui.heading("\u{e68f} Search Options");
             ui.add_space(5.0);
             ui.label("Search in:");
-            ui.checkbox(&mut search_options.keybind, "\u{ea65} Keybind");
-            ui.checkbox(&mut search_options.description, "\u{f29e} Description");
-            ui.checkbox(&mut search_options.command, "\u{ebc4} Command");
+            let s1 = ui.checkbox(&mut search_options.keybind, "\u{ea65} Keybind");
+            let s2 = ui.checkbox(&mut search_options.description, "\u{f29e} Description");
+            let s3 = ui.checkbox(&mut search_options.command, "\u{ebc4} Command");
+            if s1.changed() || s2.changed() || s3.changed() {
+                let cfg = crate::config::UserConfig {
+                    theme: *theme,
+                    column_visibility: column_visibility.clone(),
+                    search_options: search_options.clone(),
+                    zen_mode: *zen_mode,
+                };
+                let _ = crate::config::save(&cfg);
+            }
             ui.add_space(10.0);
             
             ui.separator();
@@ -95,6 +121,14 @@ pub fn render_options_window(
             if ui.button(egui::RichText::new("Enable ZEN Mode").size(14.0)).clicked() {
                 *zen_mode = true;
                 *show_zen_info_modal = true;
+                let cfg = crate::config::UserConfig {
+                    theme: *theme,
+                    column_visibility: column_visibility.clone(),
+                    search_options: search_options.clone(),
+                    zen_mode: *zen_mode,
+                };
+                let _ = crate::config::save(&cfg);
             }
+
         });
 }

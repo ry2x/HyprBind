@@ -1,23 +1,26 @@
-#[derive(PartialEq, Eq, Clone, Copy)]
+use serde::{Serialize, Deserialize};
+
+#[derive(PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum SortColumn {
     Keybind,
     Description,
     Command,
 }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum SortState {
     Ascending,
     Descending,
     None,
 }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum Theme {
     Dark,
     Light,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ColumnVisibility {
     pub keybind: bool,
     pub description: bool,

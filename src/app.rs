@@ -21,36 +21,31 @@ pub struct KeybindsApp {
 
 impl KeybindsApp {
     pub fn new() -> Self {
-        match parse_hyprctl_binds() {
-            Ok(keybindings) => Self {
-                keybindings,
-                search_query: String::new(),
-                error_message: None,
-                search_options: SearchOptions::default(),
-                sort_column: SortColumn::Keybind,
-                sort_state: SortState::None,
-                show_options_window: false,
-                theme: Theme::Dark,
-                column_visibility: ColumnVisibility::default(),
-                logo_texture: None,
-                zen_mode: false,
-                show_zen_info_modal: false,
-            },
-            Err(e) => Self {
-                keybindings: KeyBindings::new(),
-                search_query: String::new(),
-                error_message: Some(format!("Failed to load keybindings: {}", e)),
-                search_options: SearchOptions::default(),
-                sort_column: SortColumn::Keybind,
-                sort_state: SortState::None,
-                show_options_window: false,
-                theme: Theme::Dark,
-                column_visibility: ColumnVisibility::default(),
-                logo_texture: None,
-                zen_mode: false,
-                show_zen_info_modal: false,
-            },
+        let (keybindings, error_message) = match parse_hyprctl_binds() {
+            Ok(keybindings) => (keybindings, None),
+            Err(e) => (KeyBindings::new(), Some(format!("Failed to load keybindings: {}", e))),
+        };
+        let mut app = Self {
+            keybindings,
+            search_query: String::new(),
+            error_message,
+            search_options: SearchOptions::default(),
+            sort_column: SortColumn::Keybind,
+            sort_state: SortState::None,
+            show_options_window: false,
+            theme: Theme::Dark,
+            column_visibility: ColumnVisibility::default(),
+            logo_texture: None,
+            zen_mode: false,
+            show_zen_info_modal: false,
+        };
+        if let Some(cfg) = crate::config::load() {
+            app.theme = cfg.theme;
+            app.column_visibility = cfg.column_visibility;
+            app.search_options = cfg.search_options;
+            app.zen_mode = cfg.zen_mode;
         }
+        app
     }
 
     fn handle_sort_click(&mut self, column: SortColumn) {
@@ -116,8 +111,18 @@ impl eframe::App for KeybindsApp {
             }
         }
 
-        // ZEN mode keyboard shortcuts
+        // ZEN mode keyboard shortcuts with autosave
+        let prev_zen = self.zen_mode;
         crate::ui::zen::handle_zen_keyboard_shortcuts(ctx, &mut self.zen_mode);
+        if self.zen_mode != prev_zen {
+            let cfg = crate::config::UserConfig {
+                theme: self.theme,
+                column_visibility: self.column_visibility.clone(),
+                search_options: self.search_options.clone(),
+                zen_mode: self.zen_mode,
+            };
+            let _ = crate::config::save(&cfg);
+        }
         
         // Keyboard shortcuts
         let search_bar_focused = ctx.memory(|m| m.focused() == Some(egui::Id::new("search_bar")));
