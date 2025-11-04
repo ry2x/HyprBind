@@ -54,40 +54,40 @@ fn render_header_cell(ui: &mut egui::Ui, label: &str, column: SortColumn, sort_c
 }
 
 fn render_keybind_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
-    ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
-        ui.add_space(8.0);
-        
-        let key_frame = egui::Frame::new()
-            .inner_margin(egui::Margin::symmetric(8, 4))
-            .corner_radius(6.0)
-            .fill(if ui.visuals().dark_mode {
-                egui::Color32::from_rgb(45, 45, 55)
-            } else {
-                egui::Color32::from_rgb(235, 235, 240)
-            })
-            .stroke(egui::Stroke::new(1.5, if ui.visuals().dark_mode {
-                egui::Color32::from_rgb(70, 70, 80)
-            } else {
-                egui::Color32::from_rgb(200, 200, 210)
-            }));
+    ui.add_space(8.0);
+    
+    let key_frame = egui::Frame::new()
+        .inner_margin(egui::Margin::symmetric(8, 4))
+        .corner_radius(6.0)
+        .fill(if ui.visuals().dark_mode {
+            egui::Color32::from_rgb(45, 45, 55)
+        } else {
+            egui::Color32::from_rgb(235, 235, 240)
+        })
+        .stroke(egui::Stroke::new(1.5, if ui.visuals().dark_mode {
+            egui::Color32::from_rgb(70, 70, 80)
+        } else {
+            egui::Color32::from_rgb(200, 200, 210)
+        }));
 
-        if !entry.modifiers.is_empty() {
-            let modifiers: Vec<&str> = entry.modifiers.split('+').collect();
-            for (i, modifier_str) in modifiers.iter().enumerate() {
-                key_frame.show(ui, |ui| {
-                    ui.label(egui::RichText::new(get_icon(modifier_str)).size(13.0));
-                });
-                if i < modifiers.len() - 1 {
-                    ui.label(egui::RichText::new("+").size(12.0).weak());
-                }
+    if !entry.modifiers.is_empty() {
+        let modifiers: Vec<&str> = entry.modifiers.split('+').collect();
+        for (i, modifier_str) in modifiers.iter().enumerate() {
+            key_frame.show(ui, |ui| {
+                ui.label(egui::RichText::new(get_icon(modifier_str)).size(13.0));
+            });
+            if i < modifiers.len() - 1 {
+                ui.label(egui::RichText::new("+").size(12.0).weak());
             }
-            ui.label(egui::RichText::new("+").size(12.0).weak());
         }
+        ui.label(egui::RichText::new("+").size(12.0).weak());
+    }
 
-        key_frame.show(ui, |ui| {
-            ui.label(egui::RichText::new(get_icon(&entry.key)).size(13.0));
-        });
+    key_frame.show(ui, |ui| {
+        ui.label(egui::RichText::new(get_icon(&entry.key)).size(13.0));
     });
+
+    ui.label(egui::RichText::new(" ").size(12.0));
 }
 
 fn render_description_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
@@ -102,18 +102,16 @@ fn render_description_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
 
 fn render_command_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
     ui.add_space(8.0);
-    let command_display = if entry.command.len() > 50 {
-        format!("{}...", &entry.command[..47])
-    } else {
-        entry.command.clone()
-    };
-    ui.label(egui::RichText::new(command_display).size(12.0).color(
-        if ui.visuals().dark_mode {
-            egui::Color32::from_rgb(180, 180, 190)
-        } else {
-            egui::Color32::from_rgb(80, 80, 90)
-        }
-    ));
+    ui.label(egui::RichText::new(&entry.command)
+        .size(12.0)
+        .color(
+            if ui.visuals().dark_mode {
+                egui::Color32::from_rgb(180, 180, 190)
+            } else {
+                egui::Color32::from_rgb(80, 80, 90)
+            }
+        ))
+        .on_hover_text(&entry.command);
 }
 
 pub fn render_table(
@@ -129,6 +127,10 @@ pub fn render_table(
         column_visibility.command,
     ].iter().filter(|&&v| v).count();
     
+    // Remove vertical lines by making separator invisible
+    ui.style_mut().visuals.widgets.noninteractive.bg_stroke = egui::Stroke::NONE;
+    ui.style_mut().visuals.widgets.inactive.bg_stroke = egui::Stroke::NONE;
+    
     let mut table = TableBuilder::new(ui)
         .striped(true)
         .resizable(true)
@@ -139,9 +141,9 @@ pub fn render_table(
     if column_visibility.keybind {
         col_index += 1;
         if col_index == visible_count {
-            table = table.column(Column::remainder().at_least(150.0).resizable(true).clip(true));
+            table = table.column(Column::remainder().at_least(100.0).resizable(true).clip(true));
         } else {
-            table = table.column(Column::exact(200.0).resizable(true).clip(true));
+            table = table.column(Column::initial(250.0).at_least(100.0).resizable(true).clip(true));
         }
     }
     if column_visibility.description {
@@ -149,7 +151,7 @@ pub fn render_table(
         if col_index == visible_count {
             table = table.column(Column::remainder().at_least(200.0).resizable(true).clip(true));
         } else {
-            table = table.column(Column::exact(300.0).resizable(true).clip(true));
+            table = table.column(Column::initial(300.0).at_least(100.0).resizable(true).clip(true));
         }
     }
     if column_visibility.command {
@@ -157,7 +159,7 @@ pub fn render_table(
         if col_index == visible_count {
             table = table.column(Column::remainder().at_least(200.0).resizable(true).clip(true));
         } else {
-            table = table.column(Column::exact(300.0).resizable(true).clip(true));
+            table = table.column(Column::initial(300.0).at_least(100.0).resizable(true).clip(true));
         }
     }
     
@@ -191,13 +193,22 @@ pub fn render_table(
             for entry in filtered {
                 body.row(32.0, |mut row| {
                     if column_visibility.keybind {
-                        row.col(|ui| render_keybind_cell(ui, entry));
+                        row.col(|ui| {
+                            ui.set_min_height(32.0);
+                            render_keybind_cell(ui, entry);
+                        });
                     }
                     if column_visibility.description {
-                        row.col(|ui| render_description_cell(ui, entry));
+                        row.col(|ui| {
+                            ui.set_min_height(32.0);
+                            render_description_cell(ui, entry);
+                        });
                     }
                     if column_visibility.command {
-                        row.col(|ui| render_command_cell(ui, entry));
+                        row.col(|ui| {
+                            ui.set_min_height(32.0);
+                            render_command_cell(ui, entry);
+                        });
                     }
                 });
             }
