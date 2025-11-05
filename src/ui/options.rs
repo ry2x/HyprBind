@@ -2,40 +2,6 @@ use eframe::egui;
 use crate::models::SearchOptions;
 use super::types::{Theme, ColumnVisibility};
 
-pub fn render_options_window(
-    ctx: &egui::Context,
-    show_options_window: &mut bool,
-    theme: &mut Theme,
-    column_visibility: &mut ColumnVisibility,
-    search_options: &mut SearchOptions,
-    zen_mode: &mut bool,
-    show_zen_info_modal: &mut bool,
-    export_request: &mut bool,
-) {
-    let mut open = *show_options_window;
-    egui::Window::new("Options")
-        .open(&mut open)
-        .resizable(false)
-        .show(ctx, |ui| {
-            render_options_contents(ctx, ui, theme, column_visibility, search_options, zen_mode, show_zen_info_modal, export_request);
-        });
-    *show_options_window = open;
-}
-
-pub fn render_options_viewport(
-    ctx: &egui::Context,
-    theme: &mut Theme,
-    column_visibility: &mut ColumnVisibility,
-    search_options: &mut SearchOptions,
-    zen_mode: &mut bool,
-    show_zen_info_modal: &mut bool,
-    export_request: &mut bool,
-) {
-    egui::CentralPanel::default().show(ctx, |ui| {
-        render_options_contents(ctx, ui, theme, column_visibility, search_options, zen_mode, show_zen_info_modal, export_request);
-    });
-}
-
 pub fn render_options_contents(
     ctx: &egui::Context,
     ui: &mut egui::Ui,
