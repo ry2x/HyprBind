@@ -12,11 +12,41 @@ pub fn render_options_window(
     show_zen_info_modal: &mut bool,
     export_request: &mut bool,
 ) {
+    let mut open = *show_options_window;
     egui::Window::new("Options")
-        .open(show_options_window)
+        .open(&mut open)
         .resizable(false)
         .show(ctx, |ui| {
-            ui.heading("\u{f050e} Theme");
+            render_options_contents(ctx, ui, theme, column_visibility, search_options, zen_mode, show_zen_info_modal, export_request);
+        });
+    *show_options_window = open;
+}
+
+pub fn render_options_viewport(
+    ctx: &egui::Context,
+    theme: &mut Theme,
+    column_visibility: &mut ColumnVisibility,
+    search_options: &mut SearchOptions,
+    zen_mode: &mut bool,
+    show_zen_info_modal: &mut bool,
+    export_request: &mut bool,
+) {
+    egui::CentralPanel::default().show(ctx, |ui| {
+        render_options_contents(ctx, ui, theme, column_visibility, search_options, zen_mode, show_zen_info_modal, export_request);
+    });
+}
+
+pub fn render_options_contents(
+    ctx: &egui::Context,
+    ui: &mut egui::Ui,
+    theme: &mut Theme,
+    column_visibility: &mut ColumnVisibility,
+    search_options: &mut SearchOptions,
+    zen_mode: &mut bool,
+    show_zen_info_modal: &mut bool,
+    export_request: &mut bool,
+) {
+    ui.heading("\u{f050e} Theme");
             ui.add_space(5.0);
             ui.horizontal(|ui| {
                 // Dark label with icon
@@ -145,6 +175,4 @@ pub fn render_options_window(
             if ui.button(egui::RichText::new("Export JSON").size(14.0)).clicked() {
                 *export_request = true;
             }
-
-        });
 }

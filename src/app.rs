@@ -164,18 +164,36 @@ impl eframe::App for KeybindsApp {
             self.show_options_window = false;
         }
 
-        // Options window
+        // Options window as separate OS window (egui viewport)
+        let options_viewport_id = egui::ViewportId::from_hash_of("options");
         if self.show_options_window {
-            crate::ui::options::render_options_window(
-                ctx,
-                &mut self.show_options_window,
-                &mut self.theme,
-                &mut self.column_visibility,
-                &mut self.search_options,
-                &mut self.zen_mode,
-                &mut self.show_zen_info_modal,
-                &mut self.export_request,
+            ctx.show_viewport_immediate(
+                options_viewport_id,
+                egui::ViewportBuilder::default()
+                    .with_title("HyprBind – Options")
+                    .with_resizable(true)
+                    .with_min_inner_size([400.0, 420.0])
+                    .with_inner_size([520.0, 560.0]),
+                |vctx, _class| {
+                    if vctx.input(|i| i.viewport().close_requested()) {
+                        self.show_options_window = false;
+                    }
+                    egui::CentralPanel::default().show(vctx, |ui| {
+                        crate::ui::options::render_options_contents(
+                            vctx,
+                            ui,
+                            &mut self.theme,
+                            &mut self.column_visibility,
+                            &mut self.search_options,
+                            &mut self.zen_mode,
+                            &mut self.show_zen_info_modal,
+                            &mut self.export_request,
+                        );
+                    });
+                },
             );
+        } else {
+            // No options viewport when flag is false
         }
 
         // Handle export request and show result modal
