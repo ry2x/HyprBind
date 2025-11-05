@@ -62,6 +62,10 @@ cargo build --release
   - Enable ZEN mode; a modal appears once. Press `Z` to exit (info modal: Enter to close)
   - Export JSON → saves to `~/.config/hyprbind/exports/keybindings_<epoch>.json` and shows a modal with the path
   - Press ESC to close Options
+- Support CSS: place at $XDG_CONFIG_HOME/hyprbind/hyprbind-theme.css (fallback: ~/.config/hyprbind/hyprbind-theme.css)
+  - Generate default CSS: hyprbind --write-default-css (overwrite: --force-write-default-css)
+  - Note: @import is NOT supported
+  - Sample: hyprbind-theme.sample.css
 
 
 ## Add descriptions to your keybinds
@@ -93,6 +97,7 @@ bind = SUPER, F, exec, thunar  # description is empty
 - Print keybinds as JSON and exit:
   - cargo run -- --json
   - or after installing: hyprbind --json
+
 
 
 ## Config
