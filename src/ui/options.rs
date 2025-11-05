@@ -71,6 +71,11 @@ pub fn render_options_window(
                 let light_text = egui::RichText::new("\u{e30d} Light").size(13.0);
                 ui.label(light_text);
             });
+            ui.add_space(8.0);
+            let tip = format!("Re-apply {}", crate::css::default_css_path().to_string_lossy());
+            if ui.button("Reload CSS").on_hover_text(tip).clicked() {
+                crate::css::apply_default_if_exists(ctx);
+            }
             ui.add_space(10.0);
             
             ui.separator();

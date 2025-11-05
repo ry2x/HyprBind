@@ -142,10 +142,12 @@ impl eframe::App for KeybindsApp {
             });
         }
 
-        // Apply theme
-        match self.theme {
-            Theme::Dark => ctx.set_visuals(egui::Visuals::dark()),
-            Theme::Light => ctx.set_visuals(egui::Visuals::light()),
+        // Apply theme (skip if custom CSS theme is present)
+        if !crate::css::has_custom_theme() {
+            match self.theme {
+                Theme::Dark => ctx.set_visuals(egui::Visuals::dark()),
+                Theme::Light => ctx.set_visuals(egui::Visuals::light()),
+            }
         }
 
         // ZEN mode info modal
