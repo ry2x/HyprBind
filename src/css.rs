@@ -133,9 +133,9 @@ pub fn has_custom_theme() -> bool {
     default_css_path().exists()
 }
 
-pub fn write_default_css(overwrite: bool) -> Result<std::path::PathBuf, String> {
+pub fn write_default_css(overwrite: bool) -> Result<PathBuf, String> {
     let dir = crate::config::config_dir();
-    std::fs::create_dir_all(&dir).map_err(|e| format!("Failed to create config dir: {}", e))?;
+    fs::create_dir_all(&dir).map_err(|e| format!("Failed to create config dir: {}", e))?;
     let path = default_css_path();
     if path.exists() && !overwrite {
         return Err(format!("CSS already exists at {} (use --force-write-default-css to overwrite)", path.to_string_lossy()));
@@ -151,6 +151,6 @@ pub fn write_default_css(overwrite: bool) -> Result<std::path::PathBuf, String> 
         epoch
     );
 
-    std::fs::write(&path, css).map_err(|e| format!("Failed to write CSS: {}", e))?;
+    fs::write(&path, css).map_err(|e| format!("Failed to write CSS: {}", e))?;
     Ok(path)
 }

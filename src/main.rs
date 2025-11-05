@@ -15,13 +15,13 @@ fn main() -> Result<(), eframe::Error> {
     // JSON output mode: `--json` or `-j`
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|a| a == "--write-default-css") {
-        match crate::css::write_default_css(false) {
+        match css::write_default_css(false) {
             Ok(path) => { println!("Default CSS written to {}", path.to_string_lossy()); return Ok(()); }
             Err(e) => { eprintln!("{}", e); std::process::exit(1); }
         }
     }
     if args.iter().any(|a| a == "--force-write-default-css") {
-        match crate::css::write_default_css(true) {
+        match css::write_default_css(true) {
             Ok(path) => { println!("Default CSS written (overwritten) to {}", path.to_string_lossy()); return Ok(()); }
             Err(e) => { eprintln!("{}", e); std::process::exit(1); }
         }
@@ -62,7 +62,7 @@ fn main() -> Result<(), eframe::Error> {
         options,
         Box::new(|cc| {
             setup_custom_fonts(&cc.egui_ctx);
-            crate::css::apply_default_if_exists(&cc.egui_ctx);
+            css::apply_default_if_exists(&cc.egui_ctx);
             Ok(Box::new(KeybindsApp::new()))
         }),
     )
