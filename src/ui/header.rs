@@ -1,9 +1,14 @@
 use eframe::egui;
 
 fn render_gradient_text(ui: &mut egui::Ui, text: &str, font_size: f32) {
-    // Gradient colors matching logo: purple to cyan/blue
-    let start_color = egui::Color32::from_rgb(168, 85, 247); // Purple
-    let end_color = egui::Color32::from_rgb(96, 165, 250);   // Blue
+    // Gradient colors derived from theme accent
+    let accent = ui.visuals().hyperlink_color;
+    let start_color = accent; // use accent as start
+    let end_color = egui::Color32::from_rgb(
+        ((accent.r() as u16 + 255) / 2) as u8,
+        ((accent.g() as u16 + 255) / 2) as u8,
+        ((accent.b() as u16 + 255) / 2) as u8,
+    );
     
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 0.0; // No spacing between characters
@@ -33,11 +38,7 @@ pub fn render_header(
         ui.min_rect().min,
         egui::vec2(ui.available_width(), 120.0)
     );
-    let header_bg = if ui.visuals().dark_mode {
-        egui::Color32::from_rgb(25, 25, 30)
-    } else {
-        egui::Color32::from_rgb(250, 250, 255)
-    };
+    let header_bg = ui.visuals().panel_fill;
     ui.painter().rect_filled(header_rect, 0.0, header_bg);
     
     ui.add_space(15.0);
@@ -60,7 +61,7 @@ pub fn render_header(
             // Add vertical offset to move text up
             ui.add_space(-2.0);
             
-            // Render gradient text "HyprBind" with manual positioning
+            // Render gradient text "HyprBind" tinted by accent color
             ui.vertical(|ui| {
                 ui.add_space(-1.0); // Negative space to move text up
                 render_gradient_text(ui, "HyprBind", 24.0);
@@ -107,11 +108,8 @@ pub fn render_search_bar(ui: &mut egui::Ui, search_query: &mut String) {
         ui.add_space(1.0);
         
         let clear_button = egui::Button::new(egui::RichText::new("\u{eabf} ").size(13.0))
-            .fill(if ui.visuals().dark_mode {
-                egui::Color32::from_rgb(40, 40, 50)
-            } else {
-                egui::Color32::from_rgb(230, 230, 240)
-            });
+            .fill(ui.visuals().widgets.inactive.weak_bg_fill)
+            .stroke(egui::Stroke { width: ui.style().visuals.widgets.inactive.bg_stroke.width, color: ui.style().visuals.widgets.inactive.bg_stroke.color });
         if ui.add(clear_button).clicked() {
             search_query.clear();
         }
