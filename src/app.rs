@@ -195,6 +195,7 @@ impl eframe::App for KeybindsApp {
                         self.show_options_window = false;
                     }
                     egui::CentralPanel::default().show(vctx, |ui| {
+                        let prev_zen = self.zen_mode;
                         crate::ui::options::render_options_contents(
                             vctx,
                             ui,
@@ -205,6 +206,9 @@ impl eframe::App for KeybindsApp {
                             &mut self.show_zen_info_modal,
                             &mut self.export_request,
                         );
+                        if !prev_zen && self.zen_mode {
+                            self.show_options_window = false;
+                        }
                     });
                 },
             );
