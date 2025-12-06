@@ -173,6 +173,9 @@ impl eframe::App for KeybindsApp {
                 &mut self.show_zen_info_modal,
                 &mut self.show_options_window,
             );
+            if ctx.input(|i| i.key_pressed(egui::Key::Z)) {
+                self.show_zen_info_modal = false;
+            }
         }
 
         // Close options with ESC
