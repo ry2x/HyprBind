@@ -109,7 +109,7 @@ pub fn render_search_bar(ui: &mut egui::Ui, search_query: &mut String) {
         
         let clear_button = egui::Button::new(egui::RichText::new("\u{eabf} ").size(13.0))
             .fill(ui.visuals().widgets.inactive.weak_bg_fill)
-            .stroke(egui::Stroke { width: ui.style().visuals.widgets.inactive.bg_stroke.width, color: ui.style().visuals.widgets.inactive.bg_stroke.color });
+            .stroke(ui.visuals().widgets.inactive.bg_stroke);
         if ui.add(clear_button).clicked() {
             search_query.clear();
         }
