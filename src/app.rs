@@ -20,6 +20,7 @@ pub struct KeybindsApp {
     selected_row: Option<usize>,
     export_request: bool,
     export_modal_path: Option<String>,
+    last_css_mtime: Option<std::time::SystemTime>,
 }
 
 impl KeybindsApp {
@@ -44,6 +45,7 @@ impl KeybindsApp {
             selected_row: None,
             export_request: false,
             export_modal_path: None,
+            last_css_mtime: None,
         };
         if let Some(cfg) = crate::config::load() {
             app.theme = cfg.theme;
@@ -142,8 +144,22 @@ impl eframe::App for KeybindsApp {
             });
         }
 
-        // Apply theme (skip if custom CSS theme is present)
-        if !crate::css::has_custom_theme() {
+        // Apply theme or auto-reload CSS when present
+        if crate::css::has_custom_theme() {
+            let path = crate::css::default_css_path();
+            if let Ok(meta) = std::fs::metadata(&path) {
+                if let Ok(modified) = meta.modified() {
+                    let changed = match self.last_css_mtime {
+                        Some(prev) => modified > prev,
+                        None => true,
+                    };
+                    if changed {
+                        let _ = crate::css::apply_from_path(ctx, &path.to_string_lossy());
+                        self.last_css_mtime = Some(modified);
+                    }
+                }
+            }
+        } else {
             match self.theme {
                 Theme::Dark => ctx.set_visuals(egui::Visuals::dark()),
                 Theme::Light => ctx.set_visuals(egui::Visuals::light()),
