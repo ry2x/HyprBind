@@ -74,6 +74,7 @@ pub fn apply_from_path(ctx: &egui::Context, path: &str) -> Result<(), String> {
     let mut style = (*ctx.style()).clone();
     let mut visuals = style.visuals.clone();
 
+    if let Some(fg) = fg { visuals.override_text_color = Some(fg); }
     if let Some(bg) = bg { visuals.extreme_bg_color = bg; }
     if let Some(panel) = panel { visuals.panel_fill = panel; }
     if let Some(accent) = accent { visuals.hyperlink_color = accent; }

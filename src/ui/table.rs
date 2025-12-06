@@ -23,25 +23,17 @@ pub fn render_sort_button(
     };
     button_text.push_str(sort_indicator);
     
-    let is_active = sort_column == column && sort_state != SortState::None;
+    let _is_active = sort_column == column && sort_state != SortState::None;
     let button = egui::Button::new(egui::RichText::new(button_text).strong().size(14.0))
-        .fill(if is_active {
-            ui.visuals().widgets.active.bg_fill
-        } else {
-            egui::Color32::TRANSPARENT
-        })
-        .stroke(egui::Stroke::NONE);
+        .fill(egui::Color32::TRANSPARENT)
+        .stroke(egui::Stroke::new(1.0, ui.visuals().hyperlink_color));
     
     ui.add(button).clicked()
 }
 
 fn render_header_cell(ui: &mut egui::Ui, label: &str, column: SortColumn, sort_column: SortColumn, sort_state: SortState) -> bool {
     let rect = ui.max_rect();
-    let bg_color = if ui.visuals().dark_mode {
-        egui::Color32::from_rgb(30, 30, 35)
-    } else {
-        egui::Color32::from_rgb(245, 245, 250)
-    };
+    let bg_color = ui.visuals().panel_fill;
     ui.painter().rect_filled(rect, 0.0, bg_color);
     
     let mut clicked = false;
@@ -59,16 +51,8 @@ fn render_keybind_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
     let key_frame = egui::Frame::new()
         .inner_margin(egui::Margin::symmetric(8, 4))
         .corner_radius(6.0)
-        .fill(if ui.visuals().dark_mode {
-            egui::Color32::from_rgb(45, 45, 55)
-        } else {
-            egui::Color32::from_rgb(235, 235, 240)
-        })
-        .stroke(egui::Stroke::new(1.5, if ui.visuals().dark_mode {
-            egui::Color32::from_rgb(70, 70, 80)
-        } else {
-            egui::Color32::from_rgb(200, 200, 210)
-        }));
+        .fill(ui.visuals().widgets.inactive.bg_fill)
+        .stroke(egui::Stroke::new(1.5, ui.visuals().hyperlink_color));
 
     if !entry.modifiers.is_empty() {
         let modifiers: Vec<&str> = entry.modifiers.split('+').collect();
@@ -102,15 +86,7 @@ fn render_description_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
 
 fn render_command_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
     ui.add_space(8.0);
-    ui.label(egui::RichText::new(&entry.command)
-        .size(12.0)
-        .color(
-            if ui.visuals().dark_mode {
-                egui::Color32::from_rgb(180, 180, 190)
-            } else {
-                egui::Color32::from_rgb(80, 80, 90)
-            }
-        ))
+    ui.label(egui::RichText::new(&entry.command).size(12.0))
         .on_hover_text(&entry.command);
 }
 
@@ -199,7 +175,7 @@ pub fn render_table(
                             if let Some(sel) = selected_row {
                                 if sel == idx {
                                     let rect = ui.max_rect();
-                                    let hl = if ui.visuals().dark_mode { egui::Color32::from_rgb(50, 60, 80) } else { egui::Color32::from_rgb(210, 220, 245) };
+                                    let hl = ui.visuals().selection.bg_fill;
                                     ui.painter().rect_filled(rect, 0.0, hl);
                                     ui.scroll_to_rect(rect, None);
                                 }
@@ -213,7 +189,7 @@ pub fn render_table(
                             if let Some(sel) = selected_row {
                                 if sel == idx {
                                     let rect = ui.max_rect();
-                                    let hl = if ui.visuals().dark_mode { egui::Color32::from_rgb(50, 60, 80) } else { egui::Color32::from_rgb(210, 220, 245) };
+                                    let hl = ui.visuals().selection.bg_fill;
                                     ui.painter().rect_filled(rect, 0.0, hl);
                                 }
                             }
@@ -226,7 +202,7 @@ pub fn render_table(
                             if let Some(sel) = selected_row {
                                 if sel == idx {
                                     let rect = ui.max_rect();
-                                    let hl = if ui.visuals().dark_mode { egui::Color32::from_rgb(50, 60, 80) } else { egui::Color32::from_rgb(210, 220, 245) };
+                                    let hl = ui.visuals().selection.bg_fill;
                                     ui.painter().rect_filled(rect, 0.0, hl);
                                 }
                             }
