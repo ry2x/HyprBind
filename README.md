@@ -1,39 +1,18 @@
 # HyprBind – Hyprland Keybind Viewer
 
-![HyprBind hero](big_logo_hyprbind_bg.png)
+![HyprBind hero](logo_hyprbind_bg.png)
 
-A fast, minimal GUI to view Hyprland keybinds parsed from `hyprctl binds`. Built with Rust + eframe/egui. No font setup required (Nerd Font embedded).
-
-
-## Features
-
-- Parse and display `hyprctl binds`
-- Human‑readable modmask (e.g. `64+1 → SUPER+SHIFT`)
-- Fast searchable table (focus with `/`)
-- Column sorting (asc → desc → none)
-- Show/Hide columns (Keybind / Description / Command)
-- Resizable columns with sensible minimums
-- Compact Dark/Light theme toggle
-- ZEN mode: hide header/search/stats to focus on the table; exit with `Z`
-- Nerd Font icons bundled (modifiers, arrows, media keys, etc.)
-- Keyboard navigation: ↑/↓, PageUp/PageDown, Home/End (auto scroll + row highlight)
-- Options window closes with ESC
-- ZEN info modal closes with Enter
-- JSON export from Options (shows saved path modal)
-- CLI JSON output with `--json` or `-j`
-
+A fast, minimal GUI to view Hyprland keybinds parsed from `hyprctl binds`. Built with Rust + eframe/egui.
 
 ## Screenshot
 
 ![App screenshot](screenshot_hyprbind.png)
 
-
 ## Requirements
 
 - Linux + Hyprland running
 - `hyprctl` available in PATH
-- Rust toolchain (to build from source)
-
+- Rust toolchain: `cargo` (to build from source)
 
 ## Install / Build
 
@@ -47,8 +26,17 @@ cargo run
 
 # Build release
 cargo build --release
+
+# for arch linux, this project has PKGBUILD
+makepkg -si
 ```
 
+- For Arch Linux users, you can also download prebuilt package from [releases page](https://github.com/ry2x/HyprBind/releases).
+
+```bash
+# After downloading from releases
+sudo pacman -U <filename>
+```
 
 ## Usage
 
@@ -60,19 +48,14 @@ cargo build --release
   - Switch theme (Dark/Light)
   - Choose visible columns and search targets
   - Enable ZEN mode; a modal appears once. Press `Z` to exit (info modal: Enter to close)
-  - Export JSON → saves to `~/.config/hyprbind/exports/keybindings_<epoch>.json` and shows a modal with the path
   - Press ESC to close Options
-- Support CSS: place at $XDG_CONFIG_HOME/hyprbind/hyprbind-theme.css (fallback: ~/.config/hyprbind/hyprbind-theme.css)
-  - Generate default CSS: hyprbind --write-default-css (overwrite: --force-write-default-css)
-  - Note: @import is NOT supported
-  - Sample: hyprbind-theme.sample.css
-
 
 ## Add descriptions to your keybinds
 
-Descriptions are taken from `bindd` entries. Example in your Hyprland config:
 > [!NOTE]
 > The documentation for hyprland config is [here](https://wiki.hypr.land/Configuring/Binds/#bind-flags)
+
+Descriptions are taken from `bindd` entries. Example in your Hyprland config:
 
 ```ini
 bindd = SUPER, Return, Terminal, exec, kitty
@@ -85,38 +68,57 @@ Plain `bind` also works but `description` will be empty:
 bind = SUPER, F, exec, thunar  # description is empty
 ```
 
-
 ## Notes
 
 - In dev builds, you might see a transient "Unaligned" overlay while resizing columns. This is an egui debug hint and does not appear in release builds.
 - For very long keybinds/commands, overflowing text is clipped by the column; hover to see the full command.
 
-
 ## JSON output
 
 - Print keybinds as JSON and exit:
-  - cargo run -- --json
-  - or after installing: hyprbind --json
 
+  ```bash
+  cargo run -- --json
+  ```
 
+  - or after installing:
+
+  ```bash
+  hyprbind --json
+  ```
 
 ## Config
 
-- Config file: `~/.config/hyprbind/config.json`
+- Config file: `$XDG_CONFIG_HOME/hyprbind/config.json` (fallback: `~/.config/hyprbind/config.json`)
 - Preferences are saved automatically on change and loaded on startup
 
+## Styling(CSS)
 
-## Planning
+- Dark and Light themes available
+- Custom CSS support (CSS theme will override built-in themes)
+  - CSS path: `$XDG_CONFIG_HOME/hyprbind/hyprbind-theme.css` (fallback: `~/.config/hyprbind/hyprbind-theme.css`)
+  - Generate default CSS:
 
-- Custom color schemes (Support Matugen themes)
+  ```bash
+  # default
+  hyprbind --write-default-css
 
+  # force overwrite
+  hyprbind --force-write-default-css
+  ```
+
+  - Sample: [`hyprbind-theme.sample.css`](hyprbind-theme.sample.css)
+  - Modify and save the CSS file, the app will auto-reload the CSS: Matugen or pywal etc..
+    - Example matugen templete is here: [template in my dotfile](https://github.com/ry2x/Ryprland-dot/blob/master/matugen/.config/matugen/templates/hyprbind-theme.css)
+
+> [!NOTE]
+> CSS @import is NOT supported in hyprbind's css.
 
 ## Tech
 
 - eframe/egui + egui_extras (TableBuilder)
 - image (embedded logo)
 - nerd_font (embedded Nerd Font data)
-
 
 ## License
 
