@@ -112,7 +112,11 @@ bind = SUPER, F, exec, thunar  # description is empty
     - Example matugen templete is here: [template in my dotfile](https://github.com/ry2x/Ryprland-dot/blob/master/matugen/.config/matugen/templates/hyprbind-theme.css)
 
 > [!NOTE]
-> CSS @import is NOT supported in hyprbind's css.
+> `@import` is NOT supported in hyprbind's css.
+
+## Cotributions
+
+#### Contributions are welcome! Feel free to open issues or PRs on GitHub
 
 ## Tech
 
