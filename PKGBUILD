@@ -1,7 +1,7 @@
 # Maintainer: ry2x <45420571+ry2x@users.noreply.github.com>
 
 pkgname='hyprbind'
-_pkgname='HyprBind'
+_pkgname='HyprBindViewer'
 pkgver='0.1.1'
 pkgrel=1
 pkgdesc='A GUI to display Hyprland keybindings'

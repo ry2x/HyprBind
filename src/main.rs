@@ -52,13 +52,13 @@ fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1000.0, 700.0])
-            .with_title("HyprBind")
+            .with_title("HyprBindViewer")
             .with_icon(icon_data),
         ..Default::default()
     };
 
     eframe::run_native(
-        "HyprBind",
+        "HyprBindViewer",
         options,
         Box::new(|cc| {
             setup_custom_fonts(&cc.egui_ctx);

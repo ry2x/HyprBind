@@ -61,10 +61,10 @@ pub fn render_header(
             // Add vertical offset to move text up
             ui.add_space(-2.0);
             
-            // Render gradient text "HyprBind" tinted by accent color
+            // Render gradient text "HyprBindViewer" tinted by accent color
             ui.vertical(|ui| {
                 ui.add_space(-1.0); // Negative space to move text up
-                render_gradient_text(ui, "HyprBind", 24.0);
+                render_gradient_text(ui, "HyprBindViewer", 24.0);
             });
         });
         

@@ -148,7 +148,7 @@ pub fn write_default_css(overwrite: bool) -> Result<PathBuf, String> {
         .unwrap_or(0);
 
     let css = format!(
-        "/* HyprBind default CSS generated at epoch {} */\n:root {{\n  --bg: #0f1117;\n  --fg: #d4d7dc;\n  --panel: #151922;\n  --accent: #7aa2f7;\n  --stroke: #3b4261;\n  --selection: #283457;\n  --radius: 6;\n  --spacing: 6;\n}}\n",
+        "/* HyprBindViewer default CSS generated at epoch {} */\n:root {{\n  --bg: #0f1117;\n  --fg: #d4d7dc;\n  --panel: #151922;\n  --accent: #7aa2f7;\n  --stroke: #3b4261;\n  --selection: #283457;\n  --radius: 6;\n  --spacing: 6;\n}}\n",
         epoch
     );
 
