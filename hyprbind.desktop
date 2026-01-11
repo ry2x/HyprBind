@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=HyprBind
+Name=HyprBindViewer
 Comment=A GUI to display Hyprland keybindings
 Exec=hyprbind
 Icon=hyprbind

@@ -189,7 +189,7 @@ impl eframe::App for KeybindsApp {
             ctx.show_viewport_immediate(
                 options_viewport_id,
                 egui::ViewportBuilder::default()
-                    .with_title("HyprBind – Options")
+                    .with_title("HyprBindViewer – Options")
                     .with_resizable(true)
                     .with_min_inner_size([400.0, 420.0])
                     .with_inner_size([520.0, 560.0]),

@@ -1,6 +1,6 @@
-# HyprBind – Hyprland Keybind Viewer
+# HyprBindViewer – Hyprland Keybind Viewer
 
-![HyprBind hero](logo_hyprbind_bg.png)
+![HyprBindViewer hero](logo_hyprbind_bg.png)
 
 A fast, minimal GUI to view Hyprland keybinds parsed from `hyprctl binds`. Built with Rust + eframe/egui.
 
