@@ -36,8 +36,13 @@ fn extract_vars(contents: &str) -> std::collections::HashMap<String, String> {
             if let Some(colon) = line.find(':') {
                 let key = &line[..colon].trim();
                 let mut value = &line[colon + 1..];
-                if let Some(semi) = value.find(';') { value = &value[..semi]; }
-                map.insert(key.trim().trim_start_matches('-').to_string(), value.trim().to_string());
+                if let Some(semi) = value.find(';') {
+                    value = &value[..semi];
+                }
+                map.insert(
+                    key.trim().trim_start_matches('-').to_string(),
+                    value.trim().to_string(),
+                );
             }
         }
         // Also handle lines within :root { ... }
@@ -46,9 +51,14 @@ fn extract_vars(contents: &str) -> std::collections::HashMap<String, String> {
             if let Some(colon) = rest.find(':') {
                 let key = &rest[..colon].trim();
                 let mut value = &rest[colon + 1..];
-                if let Some(semi) = value.find(';') { value = &value[..semi]; }
+                if let Some(semi) = value.find(';') {
+                    value = &value[..semi];
+                }
                 if key.starts_with("--") {
-                    map.insert(key.trim().trim_start_matches('-').to_string(), value.trim().to_string());
+                    map.insert(
+                        key.trim().trim_start_matches('-').to_string(),
+                        value.trim().to_string(),
+                    );
                 }
             }
         }
@@ -74,20 +84,42 @@ pub fn apply_from_path(ctx: &egui::Context, path: &str) -> Result<(), String> {
     let mut style = (*ctx.style()).clone();
     let mut visuals = style.visuals.clone();
 
-    if let Some(fg) = fg { visuals.override_text_color = Some(fg); }
-    if let Some(bg) = bg { visuals.extreme_bg_color = bg; }
-    if let Some(panel) = panel { visuals.panel_fill = panel; }
-    if let Some(accent) = accent { visuals.hyperlink_color = accent; }
-    if let Some(selection_bg) = selection { visuals.selection.bg_fill = selection_bg; }
-    if let Some(stroke_c) = stroke { visuals.selection.stroke.color = stroke_c; }
+    if let Some(fg) = fg {
+        visuals.override_text_color = Some(fg);
+    }
+    if let Some(bg) = bg {
+        visuals.extreme_bg_color = bg;
+    }
+    if let Some(panel) = panel {
+        visuals.panel_fill = panel;
+    }
+    if let Some(accent) = accent {
+        visuals.hyperlink_color = accent;
+    }
+    if let Some(selection_bg) = selection {
+        visuals.selection.bg_fill = selection_bg;
+    }
+    if let Some(stroke_c) = stroke {
+        visuals.selection.stroke.color = stroke_c;
+    }
 
     // Widgets styling
     let apply_widget = |w: &mut egui::style::WidgetVisuals| {
-        if let Some(fg) = fg { w.fg_stroke.color = fg; }
-        if let Some(bg) = bg { w.weak_bg_fill = bg.gamma_multiply(0.6); }
-        if let Some(panel) = panel { w.bg_fill = panel; }
-        if let Some(stroke_c) = stroke { w.bg_stroke.color = stroke_c; }
-        if let Some(r) = radius { w.corner_radius = egui::CornerRadius::same(r as u8); }
+        if let Some(fg) = fg {
+            w.fg_stroke.color = fg;
+        }
+        if let Some(bg) = bg {
+            w.weak_bg_fill = bg.gamma_multiply(0.6);
+        }
+        if let Some(panel) = panel {
+            w.bg_fill = panel;
+        }
+        if let Some(stroke_c) = stroke {
+            w.bg_stroke.color = stroke_c;
+        }
+        if let Some(r) = radius {
+            w.corner_radius = egui::CornerRadius::same(r as u8);
+        }
     };
     apply_widget(&mut visuals.widgets.noninteractive);
     apply_widget(&mut visuals.widgets.inactive);
@@ -139,7 +171,10 @@ pub fn write_default_css(overwrite: bool) -> Result<PathBuf, String> {
     fs::create_dir_all(&dir).map_err(|e| format!("Failed to create config dir: {}", e))?;
     let path = default_css_path();
     if path.exists() && !overwrite {
-        return Err(format!("CSS already exists at {} (use --force-write-default-css to overwrite)", path.to_string_lossy()));
+        return Err(format!(
+            "CSS already exists at {} (use --force-write-default-css to overwrite)",
+            path.to_string_lossy()
+        ));
     }
 
     let epoch = std::time::SystemTime::now()

@@ -1,8 +1,8 @@
+use serde::{Deserialize, Serialize};
 use std::{fs, io, path::PathBuf};
-use serde::{Serialize, Deserialize};
 
 use crate::models::SearchOptions;
-use crate::ui::types::{Theme, ColumnVisibility};
+use crate::ui::types::{ColumnVisibility, Theme};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct UserConfig {
@@ -51,6 +51,7 @@ pub fn save(cfg: &UserConfig) -> io::Result<()> {
         fs::create_dir_all(&dir)?;
     }
     let path = config_path();
-    let data = serde_json::to_string_pretty(cfg).map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+    let data = serde_json::to_string_pretty(cfg)
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
     fs::write(path, data)
 }

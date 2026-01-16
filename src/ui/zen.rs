@@ -19,7 +19,11 @@ pub fn render_zen_info_modal(
         .show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.add_space(10.0);
-                ui.label(egui::RichText::new("\u{f06e} ZEN Mode Activated").size(18.0).strong());
+                ui.label(
+                    egui::RichText::new("\u{f06e} ZEN Mode Activated")
+                        .size(18.0)
+                        .strong(),
+                );
                 ui.add_space(15.0);
                 ui.label("All distractions are hidden.");
                 ui.label("Focus on your keybindings.");
@@ -35,10 +39,7 @@ pub fn render_zen_info_modal(
         });
 }
 
-pub fn handle_zen_keyboard_shortcuts(
-    ctx: &egui::Context,
-    zen_mode: &mut bool,
-) {
+pub fn handle_zen_keyboard_shortcuts(ctx: &egui::Context, zen_mode: &mut bool) {
     // Z key to exit ZEN mode
     if *zen_mode && ctx.input(|i| i.key_pressed(egui::Key::Z)) {
         *zen_mode = false;
