@@ -19,7 +19,7 @@ A fast, minimal GUI to view Hyprland keybinds parsed from `hyprctl binds`. Built
 ```bash
 # Clone
 git clone https://github.com/ry2x/HyprBind.git
-cd show-hyprland-show-keybind
+cd HyprBind
 
 # Build & run (debug)
 cargo run
