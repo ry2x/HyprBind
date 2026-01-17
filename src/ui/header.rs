@@ -129,13 +129,13 @@ pub fn render_stats_bar(ui: &mut egui::Ui, total: usize, showing: usize) {
     ui.horizontal(|ui| {
         ui.add_space(20.0);
         ui.label(
-            egui::RichText::new(format!("📊 Total: {}", total))
+            egui::RichText::new(format!("  Total: {}", total))
                 .weak()
                 .size(12.0),
         );
         ui.add_space(10.0);
         ui.label(
-            egui::RichText::new(format!("👁 Showing: {}", showing))
+            egui::RichText::new(format!("   Showing: {}", showing))
                 .weak()
                 .size(12.0),
         );
