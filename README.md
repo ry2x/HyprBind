@@ -1,12 +1,12 @@
 # HyprBind – Hyprland Keybind Viewer
 
-![HyprBind hero](logo_hyprbind_bg.png)
+![HyprBind hero](assets/logo_hyprbind_bg.png)
 
 A fast, minimal GUI to view Hyprland keybinds parsed from `hyprctl binds`. Built with Rust + eframe/egui.
 
 ## Screenshot
 
-![App screenshot](screenshot_hyprbind.png)
+![App screenshot](assets/screenshot_hyprbind.png)
 
 ## Requirements
 
@@ -19,7 +19,7 @@ A fast, minimal GUI to view Hyprland keybinds parsed from `hyprctl binds`. Built
 ```bash
 # Clone
 git clone https://github.com/ry2x/HyprBind.git
-cd show-hyprland-show-keybind
+cd HyprBind
 
 # Build & run (debug)
 cargo run
@@ -35,7 +35,7 @@ makepkg -si
 
 ```bash
 # After downloading from releases
-sudo pacman -U <filename>
+sudo pacman -U hyprbind-<tag>-x86_64.pkg.tar.zst
 ```
 
 ## Usage
@@ -50,6 +50,15 @@ sudo pacman -U <filename>
   - Enable ZEN mode; a modal appears once. Press `Z` to exit (info modal: Enter to close)
   - Press ESC to close Options
 
+    <details>
+
+    <summary>👉 What Zen Mode Looks Like</summary>
+
+    ![Zen Mode screenshot](assets/screenshot_hyprbind_zen.png)
+
+    </details>
+
+
 ## Add descriptions to your keybinds
 
 > [!NOTE]
@@ -58,8 +67,8 @@ sudo pacman -U <filename>
 Descriptions are taken from `bindd` entries. Example in your Hyprland config:
 
 ```ini
-bindd = SUPER, Return, Terminal, exec, kitty
-bindd = SUPER+SHIFT, Q, Kill active window, killactive,
+bindd = SUPER, Return, Terminal, exec, kitty # description is "Terminal"
+bindd = SUPER+SHIFT, Q, Kill active window, killactive # description is "Kill active window"
 ```
 
 Plain `bind` also works but `description` will be empty:
@@ -114,9 +123,9 @@ bind = SUPER, F, exec, thunar  # description is empty
 > [!NOTE]
 > `@import` is NOT supported in hyprbind's css.
 
-## Cotributions
+## Contributions
 
-#### Contributions are welcome! Feel free to open issues or PRs on GitHub
+**Contributions are welcome! Feel free to open issues or PRs on GitHub**
 
 ## Tech
 
@@ -127,4 +136,5 @@ bind = SUPER, F, exec, thunar  # description is empty
 ## License
 
 SourceCode: MIT.
+
 Font: SIL OFL 1.1
