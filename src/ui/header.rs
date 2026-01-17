@@ -77,7 +77,7 @@ pub fn render_header(
 
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             ui.add_space(20.0);
-            let options_button = egui::Button::new(egui::RichText::new("⚙").size(18.0))
+            let options_button = egui::Button::new(egui::RichText::new("").size(18.0))
                 .fill(egui::Color32::TRANSPARENT)
                 .stroke(egui::Stroke::NONE);
             if ui.add(options_button).on_hover_text("Options").clicked() {
@@ -108,7 +108,7 @@ pub fn render_search_bar(ui: &mut egui::Ui, search_query: &mut String) {
 
         let search_bar = egui::TextEdit::singleline(search_query)
             .id(egui::Id::new("search_bar"))
-            .hint_text("\u{e68f} Search keybinds... (/)")
+            .hint_text("\u{e68f}   Search keybinds... ( / )")
             .desired_width(ui.available_width() - 140.0);
         ui.add(search_bar);
 

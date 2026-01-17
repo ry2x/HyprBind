@@ -12,7 +12,7 @@ pub fn render_options_contents(
     show_zen_info_modal: &mut bool,
     export_request: &mut bool,
 ) {
-    ui.heading("\u{f050e} Theme");
+    ui.heading("\u{f050e}  Theme");
     ui.add_space(5.0);
     ui.horizontal(|ui| {
         // Dark label with icon
@@ -80,11 +80,11 @@ pub fn render_options_contents(
     ui.separator();
     ui.add_space(10.0);
 
-    ui.heading("\u{f0db} Visible Columns");
+    ui.heading("\u{f0db}   Visible Columns");
     ui.add_space(5.0);
-    let r1 = ui.checkbox(&mut column_visibility.keybind, "\u{ea65} Keybind");
-    let r2 = ui.checkbox(&mut column_visibility.description, "\u{f29e} Description");
-    let r3 = ui.checkbox(&mut column_visibility.command, "\u{ebc4} Command");
+    let r1 = ui.checkbox(&mut column_visibility.keybind, "\u{ea65}   Keybind");
+    let r2 = ui.checkbox(&mut column_visibility.description, "\u{f29e}   Description");
+    let r3 = ui.checkbox(&mut column_visibility.command, "\u{ebc4}   Command");
     if r1.changed() || r2.changed() || r3.changed() {
         let cfg = crate::config::UserConfig {
             theme: *theme,
@@ -99,12 +99,12 @@ pub fn render_options_contents(
     ui.separator();
     ui.add_space(10.0);
 
-    ui.heading("\u{e68f} Search Options");
+    ui.heading("\u{e68f}   Search Options");
     ui.add_space(5.0);
     ui.label("Search in:");
-    let s1 = ui.checkbox(&mut search_options.keybind, "\u{ea65} Keybind");
-    let s2 = ui.checkbox(&mut search_options.description, "\u{f29e} Description");
-    let s3 = ui.checkbox(&mut search_options.command, "\u{ebc4} Command");
+    let s1 = ui.checkbox(&mut search_options.keybind, "\u{ea65}   Keybind");
+    let s2 = ui.checkbox(&mut search_options.description, "\u{f29e}   Description");
+    let s3 = ui.checkbox(&mut search_options.command, "\u{ebc4}   Command");
     if s1.changed() || s2.changed() || s3.changed() {
         let cfg = crate::config::UserConfig {
             theme: *theme,
@@ -119,7 +119,7 @@ pub fn render_options_contents(
     ui.separator();
     ui.add_space(10.0);
 
-    ui.heading("\u{f06e} ZEN Mode");
+    ui.heading("\u{f06e}   ZEN Mode");
     ui.add_space(5.0);
     ui.label("Hide all distractions and focus on keybindings.");
     ui.add_space(5.0);
@@ -142,7 +142,7 @@ pub fn render_options_contents(
     ui.separator();
     ui.add_space(10.0);
 
-    ui.heading("\u{ebc4} Export");
+    ui.heading("\u{ebc4}   Export");
     ui.add_space(5.0);
     if ui
         .button(egui::RichText::new("Export JSON").size(14.0))
