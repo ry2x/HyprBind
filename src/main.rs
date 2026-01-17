@@ -1,14 +1,14 @@
 mod app;
+mod config;
+mod css;
 mod font;
 mod icons;
 mod models;
 mod parser;
 mod ui;
-mod config;
-mod css;
 
-use eframe::egui;
 use app::KeybindsApp;
+use eframe::egui;
 use font::setup_custom_fonts;
 
 fn main() -> Result<(), eframe::Error> {
@@ -16,30 +16,43 @@ fn main() -> Result<(), eframe::Error> {
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|a| a == "--write-default-css") {
         match css::write_default_css(false) {
-            Ok(path) => { println!("Default CSS written to {}", path.to_string_lossy()); return Ok(()); }
-            Err(e) => { eprintln!("{}", e); std::process::exit(1); }
+            Ok(path) => {
+                println!("Default CSS written to {}", path.to_string_lossy());
+                return Ok(());
+            }
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
         }
     }
     if args.iter().any(|a| a == "--force-write-default-css") {
         match css::write_default_css(true) {
-            Ok(path) => { println!("Default CSS written (overwritten) to {}", path.to_string_lossy()); return Ok(()); }
-            Err(e) => { eprintln!("{}", e); std::process::exit(1); }
+            Ok(path) => {
+                println!(
+                    "Default CSS written (overwritten) to {}",
+                    path.to_string_lossy()
+                );
+                return Ok(());
+            }
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
         }
     }
     if args.iter().any(|a| a == "--json" || a == "-j") {
         match parser::parse_hyprctl_binds() {
-            Ok(kb) => {
-                match kb.to_json() {
-                    Ok(s) => {
-                        println!("{}", s);
-                        return Ok(())
-                    }
-                    Err(e) => {
-                        eprintln!("Failed to serialize JSON: {}", e);
-                        std::process::exit(1);
-                    }
+            Ok(kb) => match kb.to_json() {
+                Ok(s) => {
+                    println!("{}", s);
+                    return Ok(());
                 }
-            }
+                Err(e) => {
+                    eprintln!("Failed to serialize JSON: {}", e);
+                    std::process::exit(1);
+                }
+            },
             Err(e) => {
                 eprintln!("Failed to load keybindings: {}", e);
                 std::process::exit(1);
@@ -48,7 +61,7 @@ fn main() -> Result<(), eframe::Error> {
     }
 
     let icon_data = load_icon();
-    
+
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1000.0, 700.0])
@@ -74,7 +87,7 @@ fn load_icon() -> egui::IconData {
         .expect("Failed to load icon")
         .into_rgba8();
     let (width, height) = image.dimensions();
-    
+
     egui::IconData {
         rgba: image.into_raw(),
         width,

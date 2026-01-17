@@ -6,7 +6,9 @@ pub fn get_icon(key: &str) -> String {
         "SHIFT" => "\u{f0636} ".to_string(), // Shift key icon
 
         // Keys
-        k if k.eq_ignore_ascii_case("RETURN") || k.eq_ignore_ascii_case("ENTER") => "\u{f0311} ".to_string(),
+        k if k.eq_ignore_ascii_case("RETURN") || k.eq_ignore_ascii_case("ENTER") => {
+            "\u{f0311} ".to_string()
+        }
         k if k.eq_ignore_ascii_case("SEMICOLON") => ";".to_string(),
         k if k.eq_ignore_ascii_case("DELETE") => "DEL".to_string(),
         k if k.eq_ignore_ascii_case("TAB") => "TAB".to_string(),

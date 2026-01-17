@@ -44,10 +44,13 @@ impl KeyBindEntry {
     /// Check if this entry matches the search query
     pub fn matches(&self, query: &str, options: &SearchOptions) -> bool {
         let query_lower = query.to_lowercase();
-        let keybind_match = options.keybind && (self.modifiers.to_lowercase().contains(&query_lower) || self.key.to_lowercase().contains(&query_lower));
+        let keybind_match = options.keybind
+            && (self.modifiers.to_lowercase().contains(&query_lower)
+                || self.key.to_lowercase().contains(&query_lower));
         let command_match = options.command && self.command.to_lowercase().contains(&query_lower);
-        let description_match = options.description && self.description.to_lowercase().contains(&query_lower);
-        
+        let description_match =
+            options.description && self.description.to_lowercase().contains(&query_lower);
+
         keybind_match || command_match || description_match
     }
 }
@@ -75,7 +78,10 @@ impl KeyBindings {
         if query.is_empty() {
             self.entries.iter().collect()
         } else {
-            self.entries.iter().filter(|e| e.matches(query, options)).collect()
+            self.entries
+                .iter()
+                .filter(|e| e.matches(query, options))
+                .collect()
         }
     }
 

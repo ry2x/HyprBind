@@ -1,7 +1,7 @@
-use eframe::egui;
 use crate::models::{KeyBindings, SearchOptions};
 use crate::parser::parse_hyprctl_binds;
-use crate::ui::{SortColumn, SortState, Theme, ColumnVisibility};
+use crate::ui::{ColumnVisibility, SortColumn, SortState, Theme};
+use eframe::egui;
 use std::cmp::Ordering;
 
 pub struct KeybindsApp {
@@ -27,7 +27,10 @@ impl KeybindsApp {
     pub fn new() -> Self {
         let (keybindings, error_message) = match parse_hyprctl_binds() {
             Ok(keybindings) => (keybindings, None),
-            Err(e) => (KeyBindings::new(), Some(format!("Failed to load keybindings: {}", e))),
+            Err(e) => (
+                KeyBindings::new(),
+                Some(format!("Failed to load keybindings: {}", e)),
+            ),
         };
         let mut app = Self {
             keybindings,
@@ -68,17 +71,20 @@ impl KeybindsApp {
             self.sort_state = SortState::Ascending;
         }
     }
-    
+
     fn get_filtered_and_sorted_entries(&self) -> Vec<crate::models::KeyBindEntry> {
-        let mut filtered: Vec<_> = self.keybindings
+        let mut filtered: Vec<_> = self
+            .keybindings
             .filter(&self.search_query, &self.search_options)
             .into_iter()
             .cloned()
             .collect();
-        
+
         if self.sort_state != SortState::None {
             match self.sort_column {
-                SortColumn::Description => filtered.sort_by(|a, b| a.description.cmp(&b.description)),
+                SortColumn::Description => {
+                    filtered.sort_by(|a, b| a.description.cmp(&b.description))
+                }
                 SortColumn::Keybind => filtered.sort_by(|a, b| {
                     let mod_cmp = a.modifiers.cmp(&b.modifiers);
                     if mod_cmp == Ordering::Equal {
@@ -93,7 +99,7 @@ impl KeybindsApp {
                 filtered.reverse();
             }
         }
-        
+
         filtered
     }
 }
@@ -107,15 +113,9 @@ impl eframe::App for KeybindsApp {
                 let size = [image.width() as usize, image.height() as usize];
                 let image_buffer = image.to_rgba8();
                 let pixels = image_buffer.as_flat_samples();
-                let color_image = egui::ColorImage::from_rgba_unmultiplied(
-                    size,
-                    pixels.as_slice(),
-                );
-                self.logo_texture = Some(ctx.load_texture(
-                    "logo",
-                    color_image,
-                    egui::TextureOptions::LINEAR,
-                ));
+                let color_image = egui::ColorImage::from_rgba_unmultiplied(size, pixels.as_slice());
+                self.logo_texture =
+                    Some(ctx.load_texture("logo", color_image, egui::TextureOptions::LINEAR));
             }
         }
 
@@ -131,16 +131,17 @@ impl eframe::App for KeybindsApp {
             };
             let _ = crate::config::save(&cfg);
         }
-        
+
         // Keyboard shortcuts
         let search_bar_focused = ctx.memory(|m| m.focused() == Some(egui::Id::new("search_bar")));
-        
+
         // Slash key to focus search bar (only when not in ZEN mode)
         if !self.zen_mode && !search_bar_focused && ctx.input(|i| i.key_pressed(egui::Key::Slash)) {
             ctx.memory_mut(|m| m.request_focus(egui::Id::new("search_bar")));
             // Consume the slash event so it doesn't get typed
             ctx.input_mut(|i| {
-                i.events.retain(|e| !matches!(e, egui::Event::Text(s) if s == "/"));
+                i.events
+                    .retain(|e| !matches!(e, egui::Event::Text(s) if s == "/"));
             });
         }
 
@@ -246,7 +247,11 @@ impl eframe::App for KeybindsApp {
                         ui.label("JSON has been exported to:");
                         ui.monospace(path);
                         ui.add_space(10.0);
-                        if ui.button("OK").clicked() || ctx.input(|i| i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Escape)) {
+                        if ui.button("OK").clicked()
+                            || ctx.input(|i| {
+                                i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Escape)
+                            })
+                        {
                             self.export_modal_path = None;
                         }
                     });
@@ -257,33 +262,63 @@ impl eframe::App for KeybindsApp {
             // Only render header, search bar, and stats in non-ZEN mode
             if !self.zen_mode {
                 // Render header
-                crate::ui::header::render_header(ui, &mut self.show_options_window, &self.error_message, self.logo_texture.as_ref());
-                
+                crate::ui::header::render_header(
+                    ui,
+                    &mut self.show_options_window,
+                    &self.error_message,
+                    self.logo_texture.as_ref(),
+                );
+
                 // Render search bar
                 crate::ui::header::render_search_bar(ui, &mut self.search_query);
 
                 // Render stats bar
                 let filtered = self.get_filtered_and_sorted_entries();
-                crate::ui::header::render_stats_bar(ui, self.keybindings.entries.len(), filtered.len());
+                crate::ui::header::render_stats_bar(
+                    ui,
+                    self.keybindings.entries.len(),
+                    filtered.len(),
+                );
             }
 
             // Get filtered and sorted keybindings
             let filtered = self.get_filtered_and_sorted_entries();
 
             // Keyboard navigation for table (when search/options not focused)
-            let search_bar_focused = ctx.memory(|m| m.focused() == Some(egui::Id::new("search_bar")));
+            let search_bar_focused =
+                ctx.memory(|m| m.focused() == Some(egui::Id::new("search_bar")));
             if !search_bar_focused && !self.show_options_window {
                 let len = filtered.len();
                 if len > 0 {
                     let mut sel = self.selected_row.unwrap_or(0);
                     let mut changed = false;
-                    if ctx.input(|i| i.key_pressed(egui::Key::ArrowDown)) { sel = (sel + 1).min(len - 1); changed = true; }
-                    if ctx.input(|i| i.key_pressed(egui::Key::ArrowUp)) { sel = sel.saturating_sub(1); changed = true; }
-                    if ctx.input(|i| i.key_pressed(egui::Key::PageDown)) { sel = (sel + 10).min(len - 1); changed = true; }
-                    if ctx.input(|i| i.key_pressed(egui::Key::PageUp)) { sel = sel.saturating_sub(10); changed = true; }
-                    if ctx.input(|i| i.key_pressed(egui::Key::Home)) { sel = 0; changed = true; }
-                    if ctx.input(|i| i.key_pressed(egui::Key::End)) { sel = len - 1; changed = true; }
-                    if changed { self.selected_row = Some(sel); }
+                    if ctx.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
+                        sel = (sel + 1).min(len - 1);
+                        changed = true;
+                    }
+                    if ctx.input(|i| i.key_pressed(egui::Key::ArrowUp)) {
+                        sel = sel.saturating_sub(1);
+                        changed = true;
+                    }
+                    if ctx.input(|i| i.key_pressed(egui::Key::PageDown)) {
+                        sel = (sel + 10).min(len - 1);
+                        changed = true;
+                    }
+                    if ctx.input(|i| i.key_pressed(egui::Key::PageUp)) {
+                        sel = sel.saturating_sub(10);
+                        changed = true;
+                    }
+                    if ctx.input(|i| i.key_pressed(egui::Key::Home)) {
+                        sel = 0;
+                        changed = true;
+                    }
+                    if ctx.input(|i| i.key_pressed(egui::Key::End)) {
+                        sel = len - 1;
+                        changed = true;
+                    }
+                    if changed {
+                        self.selected_row = Some(sel);
+                    }
                 } else {
                     self.selected_row = None;
                 }

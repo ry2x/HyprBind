@@ -1,7 +1,7 @@
-pub mod types;
 pub mod header;
-pub mod table;
 pub mod options;
+pub mod table;
+pub mod types;
 pub mod zen;
 
-pub use types::{SortColumn, SortState, Theme, ColumnVisibility};
+pub use types::{ColumnVisibility, SortColumn, SortState, Theme};

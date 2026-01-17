@@ -3,12 +3,31 @@ name = "HyprBind"
 version = "0.1.2"
 edition = "2024"
 license = "MIT AND OFL-1.1"
+authors = ["Ry2X <45420571+ry2x@users.noreply.github.com>"]
+description = "A GUI to display Hyprland keybindings"
+repository = "https://github.com/ry2x/HyprBind"
+readme = "README.md"
+keywords = ["hyprland", "gui", "keybindings", "linux"]
+categories = ["gui", "visualization"]
 
 [dependencies]
-eframe = "0.33.0"
-image = "0.25"
-egui = "0.33.0"
-egui_extras = "0.33.0"
+eframe = { version = "0.33.0", default-features = false, features = [
+    "glow",
+    "wayland",
+    "x11",
+] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+egui = { version = "0.33.0", default-features = false }
+egui_extras = { version = "0.33.0", default-features = false }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-nerd_font = "0.2.8"
+serde_json = { version = "1.0.149", default-features = false, features = [
+    "std",
+] }
+nerd_font = { version = "0.2.8", default-features = false }
+
+[profile.release]
+opt-level = 3 
+lto = true        
+codegen-units = 1
+panic = "abort"
+strip = true
