@@ -34,6 +34,6 @@ package() {
     install -Dm644 "assets/logo_hyprbind.png" "$pkgdir/usr/share/pixmaps/$pkgname.png"
     install -Dm644 "hyprbind.desktop" "$pkgdir/usr/share/applications/$pkgname.desktop"
     
-    install -Dm644 "LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-    install -Dm644 "assets/OFL.txt" "$pkgdir/usr/share/licenses/$pkgname/OFL-1.1"
+    install -Dm644 "LICENSE-MIT" "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT"
+    install -Dm644 "LICENSE-OFL" "$pkgdir/usr/share/licenses/$pkgname/LICENSE-OFL-1.1"
 }
