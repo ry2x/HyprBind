@@ -332,7 +332,7 @@ mod tests {
             "󰙡", "", "", "󰙣",
         ];
 
-        let non_nerd_fonts: [&str; 6] = [";", "A", ";", "DEL", "TAB", "1"];
+        let non_nerd_fonts: [&str; 5] = [";", "A", "DEL", "TAB", "1"];
 
         for icon in nerd_fonts.iter() {
             assert!(
