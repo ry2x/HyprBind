@@ -4,6 +4,11 @@ use crate::models::KeyBindEntry;
 use eframe::egui;
 use egui_extras::{Column, TableBuilder};
 
+const KEY_FRAME_MARGIN_LEFT: i8 = 11;
+const KEY_FRAME_MARGIN_RIGHT_ICON: i8 = 15;
+const KEY_FRAME_MARGIN_RIGHT_TEXT: i8 = 10;
+const KEY_FRAME_MARGIN_VERTICAL: i8 = 4;
+
 pub fn render_sort_button(
     ui: &mut egui::Ui,
     label: &str,
@@ -78,10 +83,14 @@ fn render_keybind_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
 
             let key_frame = egui::Frame::new()
                 .inner_margin(egui::Margin {
-                    left: 11,
-                    right: if is_icon { 15 } else { 10 },
-                    top: 4,
-                    bottom: 4,
+                    left: KEY_FRAME_MARGIN_LEFT,
+                    right: if is_icon {
+                        KEY_FRAME_MARGIN_RIGHT_ICON
+                    } else {
+                        KEY_FRAME_MARGIN_RIGHT_TEXT
+                    },
+                    top: KEY_FRAME_MARGIN_VERTICAL,
+                    bottom: KEY_FRAME_MARGIN_VERTICAL,
                 })
                 .corner_radius(6.0)
                 .fill(ui.visuals().widgets.inactive.bg_fill)
@@ -106,10 +115,14 @@ fn render_keybind_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
 
     let key_frame = egui::Frame::new()
         .inner_margin(egui::Margin {
-            left: 10,
-            right: if is_key_icon { 12 } else { 10 },
-            top: 4,
-            bottom: 4,
+            left: KEY_FRAME_MARGIN_LEFT,
+            right: if is_key_icon {
+                KEY_FRAME_MARGIN_RIGHT_ICON
+            } else {
+                KEY_FRAME_MARGIN_RIGHT_TEXT
+            },
+            top: KEY_FRAME_MARGIN_VERTICAL,
+            bottom: KEY_FRAME_MARGIN_VERTICAL,
         })
         .corner_radius(6.0)
         .fill(ui.visuals().widgets.inactive.bg_fill)
