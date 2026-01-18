@@ -1,3 +1,4 @@
+use crate::icons::get_icon;
 use serde::{Deserialize, Serialize};
 
 /// Options for searching keybindings
@@ -88,6 +89,33 @@ impl KeyBindings {
     /// Export as JSON
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string_pretty(self)
+    }
+
+    /// Export as dmenu-compatible format with NERD FONT icons
+    pub fn to_dmenu(&self) -> String {
+        self.entries
+            .iter()
+            .map(|entry| {
+                let keybind = if entry.modifiers.is_empty() {
+                    get_icon(&entry.key)
+                } else {
+                    let modifiers: Vec<&str> = entry.modifiers.split('+').collect();
+                    let modifier_icons: Vec<String> =
+                        modifiers.iter().map(|m| get_icon(m)).collect();
+                    let key_icon = get_icon(&entry.key);
+                    format!("{} + {}", modifier_icons.join(" + "), key_icon)
+                };
+
+                let display_text = if !entry.description.is_empty() {
+                    entry.description.clone()
+                } else {
+                    entry.command.clone()
+                };
+
+                format!("{} :{}", keybind, display_text)
+            })
+            .collect::<Vec<String>>()
+            .join("\n")
     }
 }
 
