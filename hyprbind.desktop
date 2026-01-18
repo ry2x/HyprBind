@@ -4,4 +4,4 @@ Comment=A GUI to display Hyprland keybindings
 Exec=hyprbind
 Icon=hyprbind
 Type=Application
-Categories=Utility;
+Categories=Utility;keybinding;Viewer;
