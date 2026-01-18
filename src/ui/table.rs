@@ -4,6 +4,11 @@ use crate::models::KeyBindEntry;
 use eframe::egui;
 use egui_extras::{Column, TableBuilder};
 
+const KEY_FRAME_MARGIN_LEFT: i8 = 11;
+const KEY_FRAME_MARGIN_RIGHT_ICON: i8 = 15;
+const KEY_FRAME_MARGIN_RIGHT_TEXT: i8 = 10;
+const KEY_FRAME_MARGIN_VERTICAL: i8 = 4;
+
 pub fn render_sort_button(
     ui: &mut egui::Ui,
     label: &str,
@@ -54,24 +59,48 @@ fn render_header_cell(
     clicked
 }
 
+fn is_nerd_font_icon(text: &str) -> bool {
+    // Check if text contains Nerd Font Unicode characters (Private Use Areas)
+    text.chars().any(|c| {
+        let code = c as u32;
+        // BMP PUA (Basic Multilingual Plane Private Use Area)
+        (0xE000..=0xF8FF).contains(&code)
+            // SMP PUA (Supplementary Multilingual Plane Private Use Area)
+            || (0xF0000..=0xFFFFD).contains(&code)
+            // SSP PUA (Supplementary Special-purpose Plane Private Use Area)
+            || (0x100000..=0x10FFFD).contains(&code)
+    })
+}
+
 fn render_keybind_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
     ui.add_space(8.0);
-
-    let key_frame = egui::Frame::new()
-        .inner_margin(egui::Margin::symmetric(8, 4))
-        .corner_radius(6.0)
-        .fill(ui.visuals().widgets.inactive.bg_fill)
-        .stroke(egui::Stroke::new(1.5, ui.visuals().hyperlink_color));
 
     if !entry.modifiers.is_empty() {
         let modifiers: Vec<&str> = entry.modifiers.split('+').collect();
         for (i, modifier_str) in modifiers.iter().enumerate() {
-            key_frame.show(ui, |ui| {
+            let icon_text = get_icon(modifier_str);
+            let is_icon = is_nerd_font_icon(&icon_text);
+
+            let key_frame = egui::Frame::new()
+                .inner_margin(egui::Margin {
+                    left: KEY_FRAME_MARGIN_LEFT,
+                    right: if is_icon {
+                        KEY_FRAME_MARGIN_RIGHT_ICON
+                    } else {
+                        KEY_FRAME_MARGIN_RIGHT_TEXT
+                    },
+                    top: KEY_FRAME_MARGIN_VERTICAL,
+                    bottom: KEY_FRAME_MARGIN_VERTICAL,
+                })
+                .corner_radius(6.0)
+                .fill(ui.visuals().widgets.inactive.bg_fill)
+                .stroke(egui::Stroke::new(1.5, ui.visuals().hyperlink_color));
+
+            key_frame.show(ui, |ui: &mut egui::Ui| {
                 ui.label(
-                    egui::RichText::new(get_icon(modifier_str))
+                    egui::RichText::new(&icon_text)
                         .size(13.0)
-                        .family(egui::FontFamily::Proportional)
-                        .extra_letter_spacing(1.5),
+                        .family(egui::FontFamily::Proportional),
                 );
             });
             if i < modifiers.len() - 1 {
@@ -81,12 +110,29 @@ fn render_keybind_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
         ui.label(egui::RichText::new("+").size(12.0).weak());
     }
 
+    let key_icon_text = get_icon(&entry.key);
+    let is_key_icon = is_nerd_font_icon(&key_icon_text);
+
+    let key_frame = egui::Frame::new()
+        .inner_margin(egui::Margin {
+            left: KEY_FRAME_MARGIN_LEFT,
+            right: if is_key_icon {
+                KEY_FRAME_MARGIN_RIGHT_ICON
+            } else {
+                KEY_FRAME_MARGIN_RIGHT_TEXT
+            },
+            top: KEY_FRAME_MARGIN_VERTICAL,
+            bottom: KEY_FRAME_MARGIN_VERTICAL,
+        })
+        .corner_radius(6.0)
+        .fill(ui.visuals().widgets.inactive.bg_fill)
+        .stroke(egui::Stroke::new(1.5, ui.visuals().hyperlink_color));
+
     key_frame.show(ui, |ui| {
         ui.label(
-            egui::RichText::new(get_icon(&entry.key))
+            egui::RichText::new(&key_icon_text)
                 .size(13.0)
-                .family(egui::FontFamily::Proportional)
-                .extra_letter_spacing(1.5),
+                .family(egui::FontFamily::Proportional),
         );
     });
 
@@ -288,4 +334,37 @@ pub fn render_table(
         });
 
     clicked_column
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::is_nerd_font_icon;
+
+    #[test]
+    fn test_is_nerd_font_icon() {
+        // Test with NerdFonts
+        let nerd_fonts: [&str; 21] = [
+            "", "󰘶", "󰌑", "󰜱", "󰜴", "󰜷", "󰜮", "󱕐", "󱕑", "󰍽", "󰍽", "", "", "", "󰍭", "󰃠", "󰃞",
+            "󰙡", "", "", "󰙣",
+        ];
+
+        let non_nerd_fonts: [&str; 5] = [";", "A", "DEL", "TAB", "1"];
+
+        for icon in nerd_fonts.iter() {
+            assert!(
+                is_nerd_font_icon(icon),
+                "Expected '{}' to be identified as a Nerd Font icon",
+                icon
+            );
+        }
+
+        for text in non_nerd_fonts.iter() {
+            assert!(
+                !is_nerd_font_icon(text),
+                "Expected '{}' to NOT be identified as a Nerd Font icon",
+                text
+            );
+        }
+    }
 }

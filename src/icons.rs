@@ -1,35 +1,93 @@
+use std::collections::HashMap;
+use std::sync::OnceLock;
+
 /// Get icon for common keys and modifiers using Nerd Font
 pub fn get_icon(key: &str) -> String {
-    match key {
-        // Modifiers
-        "SUPER" => "\u{f17a} ".to_string(), // Apple Command key icon
-        "SHIFT" => "\u{f0636} ".to_string(), // Shift key icon
+    // Static table for direct key-icon mapping (case-insensitive)
+    fn icon_table() -> &'static HashMap<&'static str, &'static str> {
+        static TABLE: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
 
-        // Keys
-        k if k.eq_ignore_ascii_case("RETURN") || k.eq_ignore_ascii_case("ENTER") => {
-            "\u{f0311} ".to_string()
+        TABLE.get_or_init(|| {
+            let mut m: HashMap<&str, &str> = HashMap::new();
+            m.insert("super", "");
+            m.insert("shift", " 󰘶 ");
+            m.insert("return", "󰌑");
+            m.insert("enter", "󰌑");
+            m.insert("semicolon", ";");
+            m.insert("delete", "DEL");
+            m.insert("tab", "TAB");
+            m.insert("left", "󰜱");
+            m.insert("right", "󰜴");
+            m.insert("up", "󰜷");
+            m.insert("down", "󰜮");
+            m.insert("mouse_down", "󱕐");
+            m.insert("mouse_up", "󱕑");
+            m.insert("mouse:272", "󰍽");
+            m.insert("mouse:273", "󰍽");
+            m.insert("xf86audioraisevolume", "");
+            m.insert("xf86audiolowervolume", "");
+            m.insert("xf86audiomute", "");
+            m.insert("xf86audiomicmute", "󰍭");
+            m.insert("xf86monbrightnessup", "󰃠");
+            m.insert("xf86monbrightnessdown", "󰃞");
+            m.insert("xf86audionext", "󰙡");
+            m.insert("xf86audiopause", "");
+            m.insert("xf86audioplay", "");
+            m.insert("xf86audioprev", "󰙣");
+            m
+        })
+    }
+
+    let key_lower: String = key.to_ascii_lowercase();
+
+    // Table lookup (case-insensitive)
+    if let Some(&icon) = icon_table().get(key_lower.as_str()) {
+        return icon.to_string();
+    }
+
+    // Fallback: return the key itself
+    key.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::get_icon;
+
+    #[test]
+    fn test_get_icon() {
+        let cases: [(&str, &str); 28] = [
+            ("SUPER", ""),
+            ("SHIFT", " 󰘶 "),
+            ("RETURN", "󰌑"),
+            ("ENTER", "󰌑"),
+            ("SEMICOLON", ";"),
+            ("DELETE", "DEL"),
+            ("TAB", "TAB"),
+            ("LEFT", "󰜱"),
+            ("RIGHT", "󰜴"),
+            ("UP", "󰜷"),
+            ("DOWN", "󰜮"),
+            ("mouse_down", "󱕐"),
+            ("mouse_up", "󱕑"),
+            ("mouse:272", "󰍽"),
+            ("mouse:273", "󰍽"),
+            ("XF86AudioRaiseVolume", ""),
+            ("XF86AudioLowerVolume", ""),
+            ("XF86AudioMute", ""),
+            ("XF86AudioMicMute", "󰍭"),
+            ("XF86MonBrightnessUp", "󰃠"),
+            ("XF86MonBrightnessDown", "󰃞"),
+            ("XF86AudioNext", "󰙡"),
+            ("XF86AudioPause", ""),
+            ("XF86AudioPlay", ""),
+            ("XF86AudioPrev", "󰙣"),
+            ("UNKNOWN_KEY", "UNKNOWN_KEY"),
+            ("A", "A"),
+            ("123", "123"),
+        ];
+
+        for (input, expected) in cases.iter() {
+            assert_eq!(get_icon(input), *expected);
         }
-        k if k.eq_ignore_ascii_case("SEMICOLON") => ";".to_string(),
-        k if k.eq_ignore_ascii_case("DELETE") => "DEL".to_string(),
-        k if k.eq_ignore_ascii_case("TAB") => "TAB".to_string(),
-        k if k.eq_ignore_ascii_case("LEFT") => "\u{f0731} ".to_string(),
-        k if k.eq_ignore_ascii_case("RIGHT") => "\u{f0734} ".to_string(),
-        k if k.eq_ignore_ascii_case("UP") => "\u{f0737} ".to_string(),
-        k if k.eq_ignore_ascii_case("DOWN") => "\u{f072e} ".to_string(),
-        k if k.eq_ignore_ascii_case("mouse_down") => "\u{f1550} ".to_string(),
-        k if k.eq_ignore_ascii_case("mouse_up") => "\u{f1551} ".to_string(),
-        k if k.eq_ignore_ascii_case("mouse:272") => "\u{f522}\u{f037d} ".to_string(),
-        k if k.eq_ignore_ascii_case("mouse:273") => "\u{f037d}\u{f522} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86AudioRaiseVolume") => "\u{f028} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86AudioLowerVolume") => "\u{f027} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86AudioMute") => "\u{eee8} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86AudioMicMute") => "\u{f036d} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86MonBrightnessUp") => "\u{f00e0} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86MonBrightnessDown") => "\u{f00de} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86AudioNext") => "\u{f0661} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86AudioPause") => "\u{f04c} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86AudioPlay") => "\u{f04b} ".to_string(),
-        k if k.eq_ignore_ascii_case("XF86AudioPrev") => "\u{f0663} ".to_string(),
-        _ => key.to_string(),
     }
 }
