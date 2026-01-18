@@ -55,11 +55,15 @@ fn render_header_cell(
 }
 
 fn is_nerd_font_icon(text: &str) -> bool {
-    // Check if text contains Nerd Font Unicode characters (private use area)
+    // Check if text contains Nerd Font Unicode characters (Private Use Areas)
     text.chars().any(|c| {
         let code = c as u32;
-        // Nerd Fonts use Unicode Private Use Areas
-        (0xE000..=0xF8FF).contains(&code) || (0xF0000..=0xFFFFD).contains(&code)
+        // BMP PUA (Basic Multilingual Plane Private Use Area)
+        (0xE000..=0xF8FF).contains(&code)
+            // SMP PUA (Supplementary Multilingual Plane Private Use Area)
+            || (0xF0000..=0xFFFFD).contains(&code)
+            // SSP PUA (Supplementary Special-purpose Plane Private Use Area)
+            || (0x100000..=0x10FFFD).contains(&code)
     })
 }
 
