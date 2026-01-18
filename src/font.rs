@@ -3,7 +3,7 @@ use egui::epaint::text::{FontInsert, InsertFontFamily};
 
 /// Setup custom fonts including Nerd Font and Japanese font
 pub fn setup_custom_fonts(ctx: &egui::Context) {
-    // Load Japanese font
+    // Load Firple fonts (Nerd Font & Japanese font)
     let font_data: egui::FontData =
         egui::FontData::from_static(include_bytes!("../assets/Firple-Bold.ttf"));
 
