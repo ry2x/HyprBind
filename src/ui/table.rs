@@ -319,6 +319,7 @@ pub fn render_table(
     clicked_column
 }
 
+#[cfg(test)]
 mod tests {
 
     use super::is_nerd_font_icon;
