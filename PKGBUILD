@@ -2,7 +2,7 @@
 
 pkgname='hyprbind'
 _pkgname='HyprBind'
-pkgver='0.1.4-alpha'
+pkgver='0.1.4_alpha'
 pkgrel=1
 pkgdesc='A GUI to display Hyprland keybindings'
 arch=('x86_64' 'aarch64')
