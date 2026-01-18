@@ -66,12 +66,11 @@ fn render_keybind_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
     if !entry.modifiers.is_empty() {
         let modifiers: Vec<&str> = entry.modifiers.split('+').collect();
         for (i, modifier_str) in modifiers.iter().enumerate() {
-            key_frame.show(ui, |ui| {
+            key_frame.show(ui, |ui: &mut egui::Ui| {
                 ui.label(
                     egui::RichText::new(get_icon(modifier_str))
                         .size(13.0)
-                        .family(egui::FontFamily::Proportional)
-                        .extra_letter_spacing(1.5),
+                        .family(egui::FontFamily::Proportional),
                 );
             });
             if i < modifiers.len() - 1 {
@@ -85,8 +84,7 @@ fn render_keybind_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
         ui.label(
             egui::RichText::new(get_icon(&entry.key))
                 .size(13.0)
-                .family(egui::FontFamily::Proportional)
-                .extra_letter_spacing(1.5),
+                .family(egui::FontFamily::Proportional),
         );
     });
 

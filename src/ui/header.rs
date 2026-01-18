@@ -108,7 +108,7 @@ pub fn render_search_bar(ui: &mut egui::Ui, search_query: &mut String) {
 
         let search_bar = egui::TextEdit::singleline(search_query)
             .id(egui::Id::new("search_bar"))
-            .hint_text("\u{e68f}   Search keybinds... ( / )")
+            .hint_text("\u{e68f}  Search keybinds... ( / )")
             .desired_width(ui.available_width() - 140.0);
         ui.add(search_bar);
 
@@ -129,13 +129,13 @@ pub fn render_stats_bar(ui: &mut egui::Ui, total: usize, showing: usize) {
     ui.horizontal(|ui| {
         ui.add_space(20.0);
         ui.label(
-            egui::RichText::new(format!("  Total: {}", total))
+            egui::RichText::new(format!(" Total: {}", total))
                 .weak()
                 .size(12.0),
         );
         ui.add_space(10.0);
         ui.label(
-            egui::RichText::new(format!("   Showing: {}", showing))
+            egui::RichText::new(format!(" Showing: {}", showing))
                 .weak()
                 .size(12.0),
         );
