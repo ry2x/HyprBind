@@ -30,3 +30,21 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+
+[lints.clippy]
+# Enable for educational purposes, but don't block CI
+pedantic = "warn"
+nursery = "warn"
+
+# For avoid .unwrap() usage
+unwrap_used = "warn"
+
+# Float comparisons can be problematic
+float_cmp = "warn"
+
+# Allow many arguments in functions for GUI code
+#too_many_arguments = "allow"
