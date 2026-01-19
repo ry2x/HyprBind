@@ -13,7 +13,6 @@ pub struct AppFlags {
     pub export_request: bool,
 }
 
-
 pub struct KeybindsApp {
     keybindings: KeyBindings,
     search_query: String,
@@ -143,7 +142,10 @@ impl KeybindsApp {
 
     fn handle_search_bar_focus(&self, ctx: &egui::Context) {
         let search_bar_focused = ctx.memory(|m| m.focused() == Some(egui::Id::new("search_bar")));
-        if !self.flags.zen_mode && !search_bar_focused && ctx.input(|i| i.key_pressed(egui::Key::Slash)) {
+        if !self.flags.zen_mode
+            && !search_bar_focused
+            && ctx.input(|i| i.key_pressed(egui::Key::Slash))
+        {
             ctx.memory_mut(|m| m.request_focus(egui::Id::new("search_bar")));
             ctx.input_mut(|i| {
                 i.events
@@ -348,4 +350,3 @@ impl eframe::App for KeybindsApp {
         self.render_main_ui(ctx);
     }
 }
-

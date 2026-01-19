@@ -178,14 +178,29 @@ fn render_export_section(ui: &mut egui::Ui, export_request: &mut bool) {
     }
 }
 
-pub fn render_options_contents(
-    ctx: &egui::Context,
-    ui: &mut egui::Ui,
-    state: &mut OptionsState,
-) {
-    render_theme_section(ctx, ui, state.theme, state.column_visibility, state.search_options, *state.zen_mode);
-    render_column_visibility_section(ui, *state.theme, state.column_visibility, state.search_options, *state.zen_mode);
-    render_search_options_section(ui, *state.theme, state.column_visibility, state.search_options, *state.zen_mode);
+pub fn render_options_contents(ctx: &egui::Context, ui: &mut egui::Ui, state: &mut OptionsState) {
+    render_theme_section(
+        ctx,
+        ui,
+        state.theme,
+        state.column_visibility,
+        state.search_options,
+        *state.zen_mode,
+    );
+    render_column_visibility_section(
+        ui,
+        *state.theme,
+        state.column_visibility,
+        state.search_options,
+        *state.zen_mode,
+    );
+    render_search_options_section(
+        ui,
+        *state.theme,
+        state.column_visibility,
+        state.search_options,
+        *state.zen_mode,
+    );
     render_zen_mode_section(
         ui,
         *state.theme,

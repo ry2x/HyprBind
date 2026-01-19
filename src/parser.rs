@@ -8,9 +8,7 @@ pub fn parse_hyprctl_binds() -> io::Result<KeyBindings> {
     let output = Command::new("hyprctl").arg("binds").output()?;
 
     if !output.status.success() {
-        return Err(io::Error::other(
-            "hyprctl binds command failed",
-        ));
+        return Err(io::Error::other("hyprctl binds command failed"));
     }
 
     let output_str = String::from_utf8_lossy(&output.stdout);

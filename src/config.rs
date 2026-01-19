@@ -51,7 +51,6 @@ pub fn save(cfg: &UserConfig) -> io::Result<()> {
         fs::create_dir_all(&dir)?;
     }
     let path = config_path();
-    let data = serde_json::to_string_pretty(cfg)
-        .map_err(|e| io::Error::other(e.to_string()))?;
+    let data = serde_json::to_string_pretty(cfg).map_err(|e| io::Error::other(e.to_string()))?;
     fs::write(path, data)
 }
