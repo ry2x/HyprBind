@@ -149,16 +149,14 @@ impl eframe::App for KeybindsApp {
         if crate::css::has_custom_theme() {
             let path = crate::css::default_css_path();
             if let Ok(meta) = std::fs::metadata(&path)
-                && let Ok(modified) = meta.modified() {
-                    let changed = match self.last_css_mtime {
-                        Some(prev) => modified > prev,
-                        None => true,
-                    };
-                    if changed {
-                        let _ = crate::css::apply_from_path(ctx, &path.to_string_lossy());
-                        self.last_css_mtime = Some(modified);
-                    }
+                && let Ok(modified) = meta.modified()
+            {
+                let changed = self.last_css_mtime.is_none_or(|prev| modified > prev);
+                if changed {
+                    let _ = crate::css::apply_from_path(ctx, &path.to_string_lossy());
+                    self.last_css_mtime = Some(modified);
                 }
+            }
         } else {
             match self.theme {
                 Theme::Dark => ctx.set_visuals(egui::Visuals::dark()),
@@ -264,7 +262,7 @@ impl eframe::App for KeybindsApp {
                 crate::ui::header::render_header(
                     ui,
                     &mut self.show_options_window,
-                    &self.error_message,
+                    self.error_message.as_ref(),
                     self.logo_texture.as_ref(),
                 );
 
@@ -290,31 +288,27 @@ impl eframe::App for KeybindsApp {
                 let len = filtered.len();
                 if len > 0 {
                     let mut sel = self.selected_row.unwrap_or(0);
-                    let mut changed = false;
-                    if ctx.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
+                    let changed = if ctx.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
                         sel = (sel + 1).min(len - 1);
-                        changed = true;
-                    }
-                    if ctx.input(|i| i.key_pressed(egui::Key::ArrowUp)) {
+                        true
+                    } else if ctx.input(|i| i.key_pressed(egui::Key::ArrowUp)) {
                         sel = sel.saturating_sub(1);
-                        changed = true;
-                    }
-                    if ctx.input(|i| i.key_pressed(egui::Key::PageDown)) {
+                        true
+                    } else if ctx.input(|i| i.key_pressed(egui::Key::PageDown)) {
                         sel = (sel + 10).min(len - 1);
-                        changed = true;
-                    }
-                    if ctx.input(|i| i.key_pressed(egui::Key::PageUp)) {
+                        true
+                    } else if ctx.input(|i| i.key_pressed(egui::Key::PageUp)) {
                         sel = sel.saturating_sub(10);
-                        changed = true;
-                    }
-                    if ctx.input(|i| i.key_pressed(egui::Key::Home)) {
+                        true
+                    } else if ctx.input(|i| i.key_pressed(egui::Key::Home)) {
                         sel = 0;
-                        changed = true;
-                    }
-                    if ctx.input(|i| i.key_pressed(egui::Key::End)) {
+                        true
+                    } else if ctx.input(|i| i.key_pressed(egui::Key::End)) {
                         sel = len - 1;
-                        changed = true;
-                    }
+                        true
+                    } else {
+                        false
+                    };
                     if changed {
                         self.selected_row = Some(sel);
                     }

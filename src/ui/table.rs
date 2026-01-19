@@ -28,7 +28,6 @@ pub fn render_sort_button(
     };
     button_text.push_str(sort_indicator);
 
-    let _is_active = sort_column == column && sort_state != SortState::None;
     let button = egui::Button::new(egui::RichText::new(button_text).strong().size(14.0))
         .fill(egui::Color32::TRANSPARENT)
         .stroke(egui::Stroke::new(1.0, ui.visuals().hyperlink_color));
@@ -68,7 +67,7 @@ fn is_nerd_font_icon(text: &str) -> bool {
             // SMP PUA (Supplementary Multilingual Plane Private Use Area)
             || (0xF0000..=0xFFFFD).contains(&code)
             // SSP PUA (Supplementary Special-purpose Plane Private Use Area)
-            || (0x100000..=0x10FFFD).contains(&code)
+            || (0x0010_0000..=0x0010_FFFD).contains(&code)
     })
 }
 
@@ -293,12 +292,13 @@ pub fn render_table(
                         row.col(|ui| {
                             ui.set_min_height(32.0);
                             if let Some(sel) = selected_row
-                                && sel == idx {
-                                    let rect = ui.max_rect();
-                                    let hl = ui.visuals().selection.bg_fill;
-                                    ui.painter().rect_filled(rect, 0.0, hl);
-                                    ui.scroll_to_rect(rect, None);
-                                }
+                                && sel == idx
+                            {
+                                let rect = ui.max_rect();
+                                let hl = ui.visuals().selection.bg_fill;
+                                ui.painter().rect_filled(rect, 0.0, hl);
+                                ui.scroll_to_rect(rect, None);
+                            }
                             render_keybind_cell(ui, entry);
                         });
                     }
@@ -306,11 +306,12 @@ pub fn render_table(
                         row.col(|ui| {
                             ui.set_min_height(32.0);
                             if let Some(sel) = selected_row
-                                && sel == idx {
-                                    let rect = ui.max_rect();
-                                    let hl = ui.visuals().selection.bg_fill;
-                                    ui.painter().rect_filled(rect, 0.0, hl);
-                                }
+                                && sel == idx
+                            {
+                                let rect = ui.max_rect();
+                                let hl = ui.visuals().selection.bg_fill;
+                                ui.painter().rect_filled(rect, 0.0, hl);
+                            }
                             render_description_cell(ui, entry);
                         });
                     }
@@ -318,11 +319,12 @@ pub fn render_table(
                         row.col(|ui| {
                             ui.set_min_height(32.0);
                             if let Some(sel) = selected_row
-                                && sel == idx {
-                                    let rect = ui.max_rect();
-                                    let hl = ui.visuals().selection.bg_fill;
-                                    ui.painter().rect_filled(rect, 0.0, hl);
-                                }
+                                && sel == idx
+                            {
+                                let rect = ui.max_rect();
+                                let hl = ui.visuals().selection.bg_fill;
+                                ui.painter().rect_filled(rect, 0.0, hl);
+                            }
                             render_command_cell(ui, entry);
                         });
                     }
