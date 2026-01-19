@@ -40,7 +40,7 @@ missing_debug_implementations = "warn"
 pedantic = "warn"
 nursery = "warn"
 
-# For avoid .unwrap() usage
+# To avoid .unwrap() usage
 unwrap_used = "warn"
 
 # Float comparisons can be problematic
