@@ -59,6 +59,18 @@ fn main() -> Result<(), eframe::Error> {
             }
         }
     }
+    if args.iter().any(|a| a == "--dmenu" || a == "-d") {
+        match parser::parse_hyprctl_binds() {
+            Ok(kb) => {
+                println!("{}", kb.to_dmenu());
+                return Ok(());
+            }
+            Err(e) => {
+                eprintln!("Failed to load keybindings: {}", e);
+                std::process::exit(1);
+            }
+        }
+    }
 
     let icon_data = load_icon();
 

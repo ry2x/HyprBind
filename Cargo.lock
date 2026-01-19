@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "HyprBind"
-version = "0.1.3"
+version = "0.1.4-alpha"
 dependencies = [
  "eframe",
  "egui",

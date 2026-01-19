@@ -96,6 +96,26 @@ bind = SUPER, F, exec, thunar  # description is empty
   hyprbind --json
   ```
 
+## dmenu output
+
+- Print keybinds in dmenu-compatible format and exit:
+
+  ```bash
+  cargo run -- --dmenu
+  ```
+
+  - or after installing:
+
+  ```bash
+  hyprbind --dmenu
+  ```
+
+  - Usage with dmenu:
+
+  ```bash
+  hyprbind --dmenu | dmenu -l 20
+  ```
+
 ## Config
 
 - Config file: `$XDG_CONFIG_HOME/hyprbind/config.json` (fallback: `~/.config/hyprbind/config.json`)
