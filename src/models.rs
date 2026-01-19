@@ -172,18 +172,16 @@ mod tests {
         let dmenu = kb.to_dmenu();
         let lines: Vec<&str> = dmenu.lines().collect();
 
-        println!("Dmenu Output:\n{}", dmenu);
-
         // 1. No modifier, icon only
-        assert!(lines[0] == "󰌑 : Terminal");
+        assert_eq!(lines[0], "󰌑 : Terminal");
 
         // 2. Modifiers, icons
-        assert!(lines[1] == " +  󰘶  + Q : Kill window");
+        assert_eq!(lines[1], " +  󰘶  + Q : Kill window");
 
         // 3. Modifiers, fallback to key text if not in icon table
-        assert!(lines[2] == "CTRL + ALT + F1 : exec firefox");
+        assert_eq!(lines[2], "CTRL + ALT + F1 : exec firefox");
 
         // 4. Modifiers, no description, no command
-        assert!(lines[3] == "CTRL + ALT + F2 : ");
+        assert_eq!(lines[3], "CTRL + ALT + F2 : ");
     }
 }
