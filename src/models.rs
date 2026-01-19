@@ -124,3 +124,52 @@ impl Default for KeyBindings {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_to_dmenu() {
+        // 1. No modifier, with description
+        let entry1 = KeyBindEntry::new(
+            "".to_string(),
+            "Return".to_string(),
+            "exec kitty".to_string(),
+            "Terminal".to_string(),
+        );
+        // 2. With modifiers, with description
+        let entry2 = KeyBindEntry::new(
+            "SUPER+SHIFT".to_string(),
+            "Q".to_string(),
+            "killactive".to_string(),
+            "Kill window".to_string(),
+        );
+        // 3. With modifiers, no description
+        let entry3 = KeyBindEntry::new(
+            "CTRL+ALT".to_string(),
+            "F1".to_string(),
+            "exec firefox".to_string(),
+            "".to_string(),
+        );
+
+        let kb = KeyBindings {
+            entries: vec![entry1, entry2, entry3],
+        };
+
+        let dmenu = kb.to_dmenu();
+        let lines: Vec<&str> = dmenu.lines().collect();
+        // 1. No modifier, icon only
+        assert!(lines[0].contains("󰌑")); // Return icon
+        assert!(lines[0].contains(":Terminal"));
+        // 2. Modifiers, icons
+        assert!(lines[1].contains("")); // SUPER icon
+        assert!(lines[1].contains("󰘶")); // SHIFT icon
+        assert!(lines[1].contains(":Kill window"));
+        // 3. Modifiers, fallback to key text if not in icon table
+        assert!(lines[2].contains("CTRL"));
+        assert!(lines[2].contains("ALT"));
+        assert!(lines[2].contains("F1"));
+        assert!(lines[2].contains(":exec firefox"));
+    }
+}
