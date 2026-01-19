@@ -2,15 +2,37 @@ use super::types::{ColumnVisibility, Theme};
 use crate::models::SearchOptions;
 use eframe::egui;
 
-pub fn render_options_contents(
+pub struct OptionsState<'a> {
+    pub theme: &'a mut Theme,
+    pub column_visibility: &'a mut ColumnVisibility,
+    pub search_options: &'a mut SearchOptions,
+    pub zen_mode: &'a mut bool,
+    pub show_zen_info_modal: &'a mut bool,
+    pub export_request: &'a mut bool,
+}
+
+fn save_config(
+    theme: Theme,
+    column_visibility: &ColumnVisibility,
+    search_options: &SearchOptions,
+    zen_mode: bool,
+) {
+    let cfg = crate::config::UserConfig {
+        theme,
+        column_visibility: column_visibility.clone(),
+        search_options: search_options.clone(),
+        zen_mode,
+    };
+    let _ = crate::config::save(&cfg);
+}
+
+fn render_theme_section(
     ctx: &egui::Context,
     ui: &mut egui::Ui,
     theme: &mut Theme,
-    column_visibility: &mut ColumnVisibility,
-    search_options: &mut SearchOptions,
-    zen_mode: &mut bool,
-    show_zen_info_modal: &mut bool,
-    export_request: &mut bool,
+    column_visibility: &ColumnVisibility,
+    search_options: &SearchOptions,
+    zen_mode: bool,
 ) {
     ui.heading("\u{f050e}  Theme");
     ui.add_space(5.0);
@@ -30,13 +52,7 @@ pub fn render_options_contents(
             is_light = !is_light;
             *theme = if is_light { Theme::Light } else { Theme::Dark };
             // autosave on theme change
-            let cfg = crate::config::UserConfig {
-                theme: *theme,
-                column_visibility: column_visibility.clone(),
-                search_options: search_options.clone(),
-                zen_mode: *zen_mode,
-            };
-            let _ = crate::config::save(&cfg);
+            save_config(*theme, column_visibility, search_options, zen_mode);
         }
 
         let bg_color = if is_light {
@@ -76,7 +92,15 @@ pub fn render_options_contents(
         crate::css::apply_default_if_exists(ctx);
     }
     ui.add_space(10.0);
+}
 
+fn render_column_visibility_section(
+    ui: &mut egui::Ui,
+    theme: Theme,
+    column_visibility: &mut ColumnVisibility,
+    search_options: &SearchOptions,
+    zen_mode: bool,
+) {
     ui.separator();
     ui.add_space(10.0);
 
@@ -86,16 +110,18 @@ pub fn render_options_contents(
     let r2 = ui.checkbox(&mut column_visibility.description, "\u{f29e}  Description");
     let r3 = ui.checkbox(&mut column_visibility.command, "\u{ebc4}  Command");
     if r1.changed() || r2.changed() || r3.changed() {
-        let cfg = crate::config::UserConfig {
-            theme: *theme,
-            column_visibility: column_visibility.clone(),
-            search_options: search_options.clone(),
-            zen_mode: *zen_mode,
-        };
-        let _ = crate::config::save(&cfg);
+        save_config(theme, column_visibility, search_options, zen_mode);
     }
     ui.add_space(10.0);
+}
 
+fn render_search_options_section(
+    ui: &mut egui::Ui,
+    theme: Theme,
+    column_visibility: &ColumnVisibility,
+    search_options: &mut SearchOptions,
+    zen_mode: bool,
+) {
     ui.separator();
     ui.add_space(10.0);
 
@@ -106,16 +132,19 @@ pub fn render_options_contents(
     let s2 = ui.checkbox(&mut search_options.description, "\u{f29e}  Description");
     let s3 = ui.checkbox(&mut search_options.command, "\u{ebc4}  Command");
     if s1.changed() || s2.changed() || s3.changed() {
-        let cfg = crate::config::UserConfig {
-            theme: *theme,
-            column_visibility: column_visibility.clone(),
-            search_options: search_options.clone(),
-            zen_mode: *zen_mode,
-        };
-        let _ = crate::config::save(&cfg);
+        save_config(theme, column_visibility, search_options, zen_mode);
     }
     ui.add_space(10.0);
+}
 
+fn render_zen_mode_section(
+    ui: &mut egui::Ui,
+    theme: Theme,
+    column_visibility: &ColumnVisibility,
+    search_options: &SearchOptions,
+    zen_mode: &mut bool,
+    show_zen_info_modal: &mut bool,
+) {
     ui.separator();
     ui.add_space(10.0);
 
@@ -129,16 +158,13 @@ pub fn render_options_contents(
     {
         *zen_mode = true;
         *show_zen_info_modal = true;
-        let cfg = crate::config::UserConfig {
-            theme: *theme,
-            column_visibility: column_visibility.clone(),
-            search_options: search_options.clone(),
-            zen_mode: *zen_mode,
-        };
-        let _ = crate::config::save(&cfg);
+        save_config(theme, column_visibility, search_options, *zen_mode);
     }
 
     ui.add_space(10.0);
+}
+
+fn render_export_section(ui: &mut egui::Ui, export_request: &mut bool) {
     ui.separator();
     ui.add_space(10.0);
 
@@ -150,4 +176,23 @@ pub fn render_options_contents(
     {
         *export_request = true;
     }
+}
+
+pub fn render_options_contents(
+    ctx: &egui::Context,
+    ui: &mut egui::Ui,
+    state: &mut OptionsState,
+) {
+    render_theme_section(ctx, ui, state.theme, state.column_visibility, state.search_options, *state.zen_mode);
+    render_column_visibility_section(ui, *state.theme, state.column_visibility, state.search_options, *state.zen_mode);
+    render_search_options_section(ui, *state.theme, state.column_visibility, state.search_options, *state.zen_mode);
+    render_zen_mode_section(
+        ui,
+        *state.theme,
+        state.column_visibility,
+        state.search_options,
+        state.zen_mode,
+        state.show_zen_info_modal,
+    );
+    render_export_section(ui, state.export_request);
 }

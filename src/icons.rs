@@ -86,7 +86,7 @@ mod tests {
             ("123", "123"),
         ];
 
-        for (input, expected) in cases.iter() {
+        for (input, expected) in &cases {
             assert_eq!(get_icon(input), *expected);
         }
     }

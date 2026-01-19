@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn test_parse_bind_block() {
-        let block = r#"bind
+        let block = r"bind
 	modmask: 64
 	submap: 
 	key: Return
@@ -112,9 +112,9 @@ mod tests {
 	catchall: false
 	description: Terminal
 	dispatcher: exec
-	arg: kitty"#;
+	arg: kitty";
 
-        let entry = parse_bind_block(block).unwrap();
+        let entry = parse_bind_block(block).expect("Failed to parse test bind block");
         assert_eq!(entry.modifiers, "SUPER");
         assert_eq!(entry.key, "Return");
         assert_eq!(entry.command, "exec kitty");

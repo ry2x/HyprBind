@@ -138,7 +138,7 @@ mod tests {
     fn test_to_dmenu() {
         // 1. No modifier, with description
         let entry1 = KeyBindEntry::new(
-            "".to_string(),
+            String::new(),
             "Return".to_string(),
             "exec kitty".to_string(),
             "Terminal".to_string(),
@@ -155,14 +155,14 @@ mod tests {
             "CTRL+ALT".to_string(),
             "F1".to_string(),
             "exec firefox".to_string(),
-            "".to_string(),
+            String::new(),
         );
         // 4. With modifiers, no description, no command
         let entry4 = KeyBindEntry::new(
             "CTRL+ALT".to_string(),
             "F2".to_string(),
-            "".to_string(),
-            "".to_string(),
+            String::new(),
+            String::new(),
         );
 
         let kb = KeyBindings {

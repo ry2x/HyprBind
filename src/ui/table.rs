@@ -158,14 +158,33 @@ fn render_command_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
         .on_hover_text(&entry.command);
 }
 
-pub fn render_table(
-    ui: &mut egui::Ui,
-    filtered: &[KeyBindEntry],
+fn add_table_column(
+    table: TableBuilder<'_>,
+    is_last: bool,
+    initial_width: f32,
+    min_width: f32,
+) -> TableBuilder<'_> {
+    if is_last {
+        table.column(
+            Column::remainder()
+                .at_least(min_width)
+                .resizable(true)
+                .clip(true),
+        )
+    } else {
+        table.column(
+            Column::initial(initial_width)
+                .at_least(min_width)
+                .resizable(true)
+                .clip(true),
+        )
+    }
+}
+
+fn build_table_columns<'a>(
+    mut table: TableBuilder<'a>,
     column_visibility: &ColumnVisibility,
-    sort_column: SortColumn,
-    sort_state: SortState,
-    selected_row: Option<usize>,
-) -> Option<SortColumn> {
+) -> TableBuilder<'a> {
     let visible_count = [
         column_visibility.keybind,
         column_visibility.description,
@@ -175,71 +194,42 @@ pub fn render_table(
     .filter(|&&v| v)
     .count();
 
-    // Remove vertical lines by making separator invisible
-    ui.style_mut().visuals.widgets.noninteractive.bg_stroke = egui::Stroke::NONE;
-    ui.style_mut().visuals.widgets.inactive.bg_stroke = egui::Stroke::NONE;
-
-    let mut table = TableBuilder::new(ui)
-        .striped(true)
-        .resizable(true)
-        .cell_layout(egui::Layout::left_to_right(egui::Align::Center));
-
     let mut col_index = 0;
 
     if column_visibility.keybind {
         col_index += 1;
-        if col_index == visible_count {
-            table = table.column(
-                Column::remainder()
-                    .at_least(100.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        } else {
-            table = table.column(
-                Column::initial(250.0)
-                    .at_least(100.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        }
+        table = add_table_column(table, col_index == visible_count, 250.0, 100.0);
     }
     if column_visibility.description {
         col_index += 1;
-        if col_index == visible_count {
-            table = table.column(
-                Column::remainder()
-                    .at_least(200.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        } else {
-            table = table.column(
-                Column::initial(300.0)
-                    .at_least(100.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        }
+        table = add_table_column(table, col_index == visible_count, 300.0, 100.0);
     }
     if column_visibility.command {
         col_index += 1;
-        if col_index == visible_count {
-            table = table.column(
-                Column::remainder()
-                    .at_least(200.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        } else {
-            table = table.column(
-                Column::initial(300.0)
-                    .at_least(100.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        }
+        table = add_table_column(table, col_index == visible_count, 300.0, 200.0);
     }
+
+    table
+}
+
+pub fn render_table(
+    ui: &mut egui::Ui,
+    filtered: &[KeyBindEntry],
+    column_visibility: &ColumnVisibility,
+    sort_column: SortColumn,
+    sort_state: SortState,
+    selected_row: Option<usize>,
+) -> Option<SortColumn> {
+    // Remove vertical lines by making separator invisible
+    ui.style_mut().visuals.widgets.noninteractive.bg_stroke = egui::Stroke::NONE;
+    ui.style_mut().visuals.widgets.inactive.bg_stroke = egui::Stroke::NONE;
+
+    let table = TableBuilder::new(ui)
+        .striped(true)
+        .resizable(true)
+        .cell_layout(egui::Layout::left_to_right(egui::Align::Center));
+
+    let table = build_table_columns(table, column_visibility);
 
     let mut clicked_column = None;
 
@@ -350,19 +340,17 @@ mod tests {
 
         let non_nerd_fonts: [&str; 5] = [";", "A", "DEL", "TAB", "1"];
 
-        for icon in nerd_fonts.iter() {
+        for icon in &nerd_fonts {
             assert!(
                 is_nerd_font_icon(icon),
-                "Expected '{}' to be identified as a Nerd Font icon",
-                icon
+                "Expected '{icon}' to be identified as a Nerd Font icon"
             );
         }
 
-        for text in non_nerd_fonts.iter() {
+        for text in &non_nerd_fonts {
             assert!(
                 !is_nerd_font_icon(text),
-                "Expected '{}' to NOT be identified as a Nerd Font icon",
-                text
+                "Expected '{text}' to NOT be identified as a Nerd Font icon"
             );
         }
     }
