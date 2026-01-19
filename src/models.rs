@@ -101,7 +101,7 @@ impl KeyBindings {
                 } else {
                     let modifiers: Vec<&str> = entry.modifiers.split('+').collect();
                     let modifier_icons: Vec<String> =
-                        modifiers.iter().map(|m| get_icon(m)).collect();
+                        modifiers.iter().map(|m| get_icon(m.trim())).collect();
                     let key_icon = get_icon(&entry.key);
                     format!("{} + {}", modifier_icons.join(" + "), key_icon)
                 };
