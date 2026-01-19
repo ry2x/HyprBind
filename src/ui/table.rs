@@ -292,40 +292,37 @@ pub fn render_table(
                     if column_visibility.keybind {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
-                            if let Some(sel) = selected_row {
-                                if sel == idx {
+                            if let Some(sel) = selected_row
+                                && sel == idx {
                                     let rect = ui.max_rect();
                                     let hl = ui.visuals().selection.bg_fill;
                                     ui.painter().rect_filled(rect, 0.0, hl);
                                     ui.scroll_to_rect(rect, None);
                                 }
-                            }
                             render_keybind_cell(ui, entry);
                         });
                     }
                     if column_visibility.description {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
-                            if let Some(sel) = selected_row {
-                                if sel == idx {
+                            if let Some(sel) = selected_row
+                                && sel == idx {
                                     let rect = ui.max_rect();
                                     let hl = ui.visuals().selection.bg_fill;
                                     ui.painter().rect_filled(rect, 0.0, hl);
                                 }
-                            }
                             render_description_cell(ui, entry);
                         });
                     }
                     if column_visibility.command {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
-                            if let Some(sel) = selected_row {
-                                if sel == idx {
+                            if let Some(sel) = selected_row
+                                && sel == idx {
                                     let rect = ui.max_rect();
                                     let hl = ui.visuals().selection.bg_fill;
                                     ui.painter().rect_filled(rect, 0.0, hl);
                                 }
-                            }
                             render_command_cell(ui, entry);
                         });
                     }

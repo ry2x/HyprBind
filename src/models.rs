@@ -33,7 +33,7 @@ pub struct KeyBindEntry {
 }
 
 impl KeyBindEntry {
-    pub fn new(modifiers: String, key: String, command: String, description: String) -> Self {
+    pub const fn new(modifiers: String, key: String, command: String, description: String) -> Self {
         Self {
             modifiers,
             key,
@@ -64,7 +64,7 @@ pub struct KeyBindings {
 }
 
 impl KeyBindings {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             entries: Vec::new(),
         }
@@ -113,11 +113,11 @@ impl KeyBindings {
                 } else if !entry.command.is_empty() {
                     entry.command.clone()
                 } else {
-                    "".to_string()
+                    String::new()
                 };
 
                 // Output line "keybind : display_text"
-                format!("{} : {}", keybind, display_text)
+                format!("{keybind} : {display_text}")
             })
             .collect::<Vec<String>>()
             .join("\n")

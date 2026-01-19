@@ -8,8 +8,7 @@ pub fn parse_hyprctl_binds() -> io::Result<KeyBindings> {
     let output = Command::new("hyprctl").arg("binds").output()?;
 
     if !output.status.success() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
+        return Err(io::Error::other(
             "hyprctl binds command failed",
         ));
     }
@@ -61,7 +60,7 @@ fn parse_bind_block(block: &str) -> Option<KeyBindEntry> {
     let command = if arg.is_empty() {
         dispatcher
     } else {
-        format!("{} {}", dispatcher, arg)
+        format!("{dispatcher} {arg}")
     };
 
     Some(KeyBindEntry::new(modifiers, key, command, description))

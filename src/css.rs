@@ -32,8 +32,8 @@ fn extract_vars(contents: &str) -> std::collections::HashMap<String, String> {
     let mut map = std::collections::HashMap::new();
     for line in contents.lines() {
         let line = line.trim();
-        if line.starts_with("--") {
-            if let Some(colon) = line.find(':') {
+        if line.starts_with("--")
+            && let Some(colon) = line.find(':') {
                 let key = &line[..colon].trim();
                 let mut value = &line[colon + 1..];
                 if let Some(semi) = value.find(';') {
@@ -44,7 +44,6 @@ fn extract_vars(contents: &str) -> std::collections::HashMap<String, String> {
                     value.trim().to_string(),
                 );
             }
-        }
         // Also handle lines within :root { ... }
         if let Some(start) = line.find("--") {
             let rest = &line[start..];
@@ -67,7 +66,7 @@ fn extract_vars(contents: &str) -> std::collections::HashMap<String, String> {
 }
 
 pub fn apply_from_path(ctx: &egui::Context, path: &str) -> Result<(), String> {
-    let contents = fs::read_to_string(path).map_err(|e| format!("Failed to read CSS: {}", e))?;
+    let contents = fs::read_to_string(path).map_err(|e| format!("Failed to read CSS: {e}"))?;
     let vars = extract_vars(&contents);
 
     // Expected variables (all optional):
@@ -168,7 +167,7 @@ pub fn has_custom_theme() -> bool {
 
 pub fn write_default_css(overwrite: bool) -> Result<PathBuf, String> {
     let dir = crate::config::config_dir();
-    fs::create_dir_all(&dir).map_err(|e| format!("Failed to create config dir: {}", e))?;
+    fs::create_dir_all(&dir).map_err(|e| format!("Failed to create config dir: {e}"))?;
     let path = default_css_path();
     if path.exists() && !overwrite {
         return Err(format!(
@@ -183,10 +182,9 @@ pub fn write_default_css(overwrite: bool) -> Result<PathBuf, String> {
         .unwrap_or(0);
 
     let css = format!(
-        "/* HyprBind default CSS generated at epoch {} */\n:root {{\n  --bg: #0f1117;\n  --fg: #d4d7dc;\n  --panel: #151922;\n  --accent: #7aa2f7;\n  --stroke: #3b4261;\n  --selection: #283457;\n  --radius: 6;\n  --spacing: 6;\n}}\n",
-        epoch
+        "/* HyprBind default CSS generated at epoch {epoch} */\n:root {{\n  --bg: #0f1117;\n  --fg: #d4d7dc;\n  --panel: #151922;\n  --accent: #7aa2f7;\n  --stroke: #3b4261;\n  --selection: #283457;\n  --radius: 6;\n  --spacing: 6;\n}}\n"
     );
 
-    fs::write(&path, css).map_err(|e| format!("Failed to write CSS: {}", e))?;
+    fs::write(&path, css).map_err(|e| format!("Failed to write CSS: {e}"))?;
     Ok(path)
 }

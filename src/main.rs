@@ -21,7 +21,7 @@ fn main() -> Result<(), eframe::Error> {
                 return Ok(());
             }
             Err(e) => {
-                eprintln!("{}", e);
+                eprintln!("{e}");
                 std::process::exit(1);
             }
         }
@@ -36,7 +36,7 @@ fn main() -> Result<(), eframe::Error> {
                 return Ok(());
             }
             Err(e) => {
-                eprintln!("{}", e);
+                eprintln!("{e}");
                 std::process::exit(1);
             }
         }
@@ -45,16 +45,16 @@ fn main() -> Result<(), eframe::Error> {
         match parser::parse_hyprctl_binds() {
             Ok(kb) => match kb.to_json() {
                 Ok(s) => {
-                    println!("{}", s);
+                    println!("{s}");
                     return Ok(());
                 }
                 Err(e) => {
-                    eprintln!("Failed to serialize JSON: {}", e);
+                    eprintln!("Failed to serialize JSON: {e}");
                     std::process::exit(1);
                 }
             },
             Err(e) => {
-                eprintln!("Failed to load keybindings: {}", e);
+                eprintln!("Failed to load keybindings: {e}");
                 std::process::exit(1);
             }
         }
@@ -66,7 +66,7 @@ fn main() -> Result<(), eframe::Error> {
                 return Ok(());
             }
             Err(e) => {
-                eprintln!("Failed to load keybindings: {}", e);
+                eprintln!("Failed to load keybindings: {e}");
                 std::process::exit(1);
             }
         }

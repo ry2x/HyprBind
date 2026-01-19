@@ -52,6 +52,6 @@ pub fn save(cfg: &UserConfig) -> io::Result<()> {
     }
     let path = config_path();
     let data = serde_json::to_string_pretty(cfg)
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        .map_err(|e| io::Error::other(e.to_string()))?;
     fs::write(path, data)
 }

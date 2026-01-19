@@ -29,7 +29,7 @@ impl KeybindsApp {
             Ok(keybindings) => (keybindings, None),
             Err(e) => (
                 KeyBindings::new(),
-                Some(format!("Failed to load keybindings: {}", e)),
+                Some(format!("Failed to load keybindings: {e}")),
             ),
         };
         let mut app = Self {
@@ -83,7 +83,7 @@ impl KeybindsApp {
         if self.sort_state != SortState::None {
             match self.sort_column {
                 SortColumn::Description => {
-                    filtered.sort_by(|a, b| a.description.cmp(&b.description))
+                    filtered.sort_by(|a, b| a.description.cmp(&b.description));
                 }
                 SortColumn::Keybind => filtered.sort_by(|a, b| {
                     let mod_cmp = a.modifiers.cmp(&b.modifiers);
@@ -148,8 +148,8 @@ impl eframe::App for KeybindsApp {
         // Apply theme or auto-reload CSS when present
         if crate::css::has_custom_theme() {
             let path = crate::css::default_css_path();
-            if let Ok(meta) = std::fs::metadata(&path) {
-                if let Ok(modified) = meta.modified() {
+            if let Ok(meta) = std::fs::metadata(&path)
+                && let Ok(modified) = meta.modified() {
                     let changed = match self.last_css_mtime {
                         Some(prev) => modified > prev,
                         None => true,
@@ -159,7 +159,6 @@ impl eframe::App for KeybindsApp {
                         self.last_css_mtime = Some(modified);
                     }
                 }
-            }
         } else {
             match self.theme {
                 Theme::Dark => ctx.set_visuals(egui::Visuals::dark()),
@@ -230,7 +229,7 @@ impl eframe::App for KeybindsApp {
                     .duration_since(std::time::UNIX_EPOCH)
                     .map(|d| d.as_secs())
                     .unwrap_or(0);
-                let file_name = format!("keybindings_{}.json", epoch);
+                let file_name = format!("keybindings_{epoch}.json");
                 let path = dir.join(file_name);
                 if std::fs::write(&path, json).is_ok() {
                     self.export_modal_path = Some(path.to_string_lossy().to_string());
