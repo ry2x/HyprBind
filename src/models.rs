@@ -96,6 +96,7 @@ impl KeyBindings {
         self.entries
             .iter()
             .map(|entry| {
+                // Get icon for each modifier and key then combine by +
                 let keybind = if entry.modifiers.is_empty() {
                     get_icon(&entry.key)
                 } else {
@@ -106,13 +107,17 @@ impl KeyBindings {
                     format!("{} + {}", modifier_icons.join(" + "), key_icon)
                 };
 
+                // Get display text: description if available, otherwise command
                 let display_text = if !entry.description.is_empty() {
                     entry.description.clone()
-                } else {
+                } else if !entry.command.is_empty() {
                     entry.command.clone()
+                } else {
+                    "".to_string()
                 };
 
-                format!("{} :{}", keybind, display_text)
+                // Output line "keybind : display_text"
+                format!("{} : {}", keybind, display_text)
             })
             .collect::<Vec<String>>()
             .join("\n")
@@ -152,24 +157,33 @@ mod tests {
             "exec firefox".to_string(),
             "".to_string(),
         );
+        // 4. With modifiers, no description, no command
+        let entry4 = KeyBindEntry::new(
+            "CTRL+ALT".to_string(),
+            "F2".to_string(),
+            "".to_string(),
+            "".to_string(),
+        );
 
         let kb = KeyBindings {
-            entries: vec![entry1, entry2, entry3],
+            entries: vec![entry1, entry2, entry3, entry4],
         };
 
         let dmenu = kb.to_dmenu();
         let lines: Vec<&str> = dmenu.lines().collect();
+
+        println!("Dmenu Output:\n{}", dmenu);
+
         // 1. No modifier, icon only
-        assert!(lines[0].contains("󰌑")); // Return icon
-        assert!(lines[0].contains(":Terminal"));
+        assert!(lines[0] == "󰌑 : Terminal");
+
         // 2. Modifiers, icons
-        assert!(lines[1].contains("")); // SUPER icon
-        assert!(lines[1].contains("󰘶")); // SHIFT icon
-        assert!(lines[1].contains(":Kill window"));
+        assert!(lines[1] == " +  󰘶  + Q : Kill window");
+
         // 3. Modifiers, fallback to key text if not in icon table
-        assert!(lines[2].contains("CTRL"));
-        assert!(lines[2].contains("ALT"));
-        assert!(lines[2].contains("F1"));
-        assert!(lines[2].contains(":exec firefox"));
+        assert!(lines[2] == "CTRL + ALT + F1 : exec firefox");
+
+        // 4. Modifiers, no description, no command
+        assert!(lines[3] == "CTRL + ALT + F2 : ");
     }
 }
