@@ -218,6 +218,8 @@ impl KeybindsApp {
 
     fn render_main_ui(&mut self, ctx: &egui::Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
+            let filtered = self.get_filtered_and_sorted_entries();
+
             if !self.state.flags.zen_mode {
                 crate::ui::header::render_header(
                     ui,
@@ -228,15 +230,12 @@ impl KeybindsApp {
 
                 crate::ui::header::render_search_bar(ui, &mut self.state.search_query);
 
-                let filtered = self.get_filtered_and_sorted_entries();
                 crate::ui::header::render_stats_bar(
                     ui,
                     self.state.keybindings.entries.len(),
                     filtered.len(),
                 );
             }
-
-            let filtered = self.get_filtered_and_sorted_entries();
             self.handle_keyboard_navigation(ctx, filtered.len());
 
             if let Some(clicked_column) = crate::ui::table::render_table(
