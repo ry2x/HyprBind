@@ -1,4 +1,27 @@
+use clap::Parser;
 use std::process;
+
+/// A GUI to display Hyprland keybindings
+#[derive(Parser)]
+#[command(name = "HyprBind")]
+#[command(version, about, long_about = None)]
+pub struct Cli {
+    /// Write default CSS theme file
+    #[arg(long)]
+    pub write_default_css: bool,
+
+    /// Overwrite existing CSS file (use with --write-default-css)
+    #[arg(long, requires = "write_default_css")]
+    pub force: bool,
+
+    /// Output keybindings as JSON
+    #[arg(short, long)]
+    pub json: bool,
+
+    /// Output keybindings in dmenu-compatible format
+    #[arg(short, long)]
+    pub dmenu: bool,
+}
 
 pub enum CliAction {
     RunGui,
@@ -8,18 +31,15 @@ pub enum CliAction {
 }
 
 pub fn parse_args() -> CliAction {
-    let args: Vec<String> = std::env::args().collect();
+    let cli = Cli::parse();
 
-    if args.iter().any(|a| a == "--write-default-css") {
-        return CliAction::WriteDefaultCss { force: false };
+    if cli.write_default_css {
+        return CliAction::WriteDefaultCss { force: cli.force };
     }
-    if args.iter().any(|a| a == "--force-write-default-css") {
-        return CliAction::WriteDefaultCss { force: true };
-    }
-    if args.iter().any(|a| a == "--json" || a == "-j") {
+    if cli.json {
         return CliAction::OutputJson;
     }
-    if args.iter().any(|a| a == "--dmenu" || a == "-d") {
+    if cli.dmenu {
         return CliAction::OutputDmenu;
     }
 
