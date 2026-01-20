@@ -2,6 +2,8 @@ use clap::Parser;
 use std::process;
 
 /// A GUI to display Hyprland keybindings
+// Allow this to avoid make another struct
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Parser)]
 #[command(name = "HyprBind")]
 #[command(version, about, long_about = None)]
