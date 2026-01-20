@@ -1,5 +1,5 @@
 use super::types::{ColumnVisibility, Theme};
-use crate::models::SearchOptions;
+use crate::hyprland::SearchOptions;
 use eframe::egui;
 
 pub struct OptionsState<'a> {
@@ -86,10 +86,10 @@ fn render_theme_section(
     ui.add_space(8.0);
     let tip = format!(
         "Re-apply {}",
-        crate::css::default_css_path().to_string_lossy()
+        crate::ui::styling::css::default_css_path().to_string_lossy()
     );
     if ui.button("Reload CSS").on_hover_text(tip).clicked() {
-        crate::css::apply_default_if_exists(ctx);
+        crate::ui::styling::css::apply_default_if_exists(ctx);
     }
     ui.add_space(10.0);
 }

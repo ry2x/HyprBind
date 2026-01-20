@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
-use std::{fs, io, path::PathBuf};
+use std::{fs, io};
 
-use crate::models::SearchOptions;
+use crate::hyprland::SearchOptions;
 use crate::ui::types::{ColumnVisibility, Theme};
+
+use super::paths::{config_dir, config_path};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct UserConfig {
@@ -21,22 +23,6 @@ impl Default for UserConfig {
             zen_mode: false,
         }
     }
-}
-
-pub fn config_dir() -> PathBuf {
-    if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
-        return PathBuf::from(xdg).join("hyprbind");
-    }
-    let home = std::env::var("HOME").unwrap_or_else(|_| ".".into());
-    PathBuf::from(home).join(".config").join("hyprbind")
-}
-
-pub fn export_dir() -> PathBuf {
-    config_dir().join("exports")
-}
-
-fn config_path() -> PathBuf {
-    config_dir().join("config.json")
 }
 
 pub fn load() -> Option<UserConfig> {

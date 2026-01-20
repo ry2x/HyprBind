@@ -1,77 +1,36 @@
 mod app;
+mod cli;
 mod config;
-mod css;
-mod font;
-mod icons;
-mod models;
-mod parser;
+mod hyprland;
 mod ui;
 
+#[cfg(test)]
+mod tests;
+
 use app::KeybindsApp;
+use cli::CliAction;
 use eframe::egui;
-use font::setup_custom_fonts;
+use ui::styling::fonts::setup_custom_fonts;
 
 fn main() -> Result<(), eframe::Error> {
-    // JSON output mode: `--json` or `-j`
-    let args: Vec<String> = std::env::args().collect();
-    if args.iter().any(|a| a == "--write-default-css") {
-        match css::write_default_css(false) {
-            Ok(path) => {
-                println!("Default CSS written to {}", path.to_string_lossy());
-                return Ok(());
-            }
-            Err(e) => {
-                eprintln!("{e}");
-                std::process::exit(1);
-            }
+    match cli::parse_args() {
+        CliAction::WriteDefaultCss { force } => {
+            cli::handle_write_css(force);
+            Ok(())
         }
-    }
-    if args.iter().any(|a| a == "--force-write-default-css") {
-        match css::write_default_css(true) {
-            Ok(path) => {
-                println!(
-                    "Default CSS written (overwritten) to {}",
-                    path.to_string_lossy()
-                );
-                return Ok(());
-            }
-            Err(e) => {
-                eprintln!("{e}");
-                std::process::exit(1);
-            }
+        CliAction::OutputJson => {
+            cli::handle_json_output();
+            Ok(())
         }
-    }
-    if args.iter().any(|a| a == "--json" || a == "-j") {
-        match parser::parse_hyprctl_binds() {
-            Ok(kb) => match kb.to_json() {
-                Ok(s) => {
-                    println!("{s}");
-                    return Ok(());
-                }
-                Err(e) => {
-                    eprintln!("Failed to serialize JSON: {e}");
-                    std::process::exit(1);
-                }
-            },
-            Err(e) => {
-                eprintln!("Failed to load keybindings: {e}");
-                std::process::exit(1);
-            }
+        CliAction::OutputDmenu => {
+            cli::handle_dmenu_output();
+            Ok(())
         }
+        CliAction::RunGui => run_gui(),
     }
-    if args.iter().any(|a| a == "--dmenu" || a == "-d") {
-        match parser::parse_hyprctl_binds() {
-            Ok(kb) => {
-                println!("{}", kb.to_dmenu());
-                return Ok(());
-            }
-            Err(e) => {
-                eprintln!("Failed to load keybindings: {e}");
-                std::process::exit(1);
-            }
-        }
-    }
+}
 
+fn run_gui() -> Result<(), eframe::Error> {
     let icon_data = load_icon();
 
     let options = eframe::NativeOptions {
@@ -87,7 +46,7 @@ fn main() -> Result<(), eframe::Error> {
         options,
         Box::new(|cc| {
             setup_custom_fonts(&cc.egui_ctx);
-            css::apply_default_if_exists(&cc.egui_ctx);
+            ui::styling::css::apply_default_if_exists(&cc.egui_ctx);
             Ok(Box::new(KeybindsApp::new()))
         }),
     )

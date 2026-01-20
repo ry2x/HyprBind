@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum SortColumn {
     Keybind,
     Description,
     Command,
 }
 
-#[derive(PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum SortState {
     Ascending,
     Descending,
