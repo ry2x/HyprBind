@@ -155,6 +155,6 @@ bind = SUPER, F, exec, thunar  # description is empty
 
 ## License
 
-SourceCode: MIT.
+SourceCode: MIT
 
 Font: SIL OFL 1.1
