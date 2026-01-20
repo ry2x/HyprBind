@@ -5,21 +5,34 @@ fn render_gradient_text(ui: &mut egui::Ui, text: &str, font_size: f32) {
     let accent = ui.visuals().hyperlink_color;
     let start_color = accent; // use accent as start
     let end_color = egui::Color32::from_rgb(
-        ((accent.r() as u16 + 255) / 2) as u8,
-        ((accent.g() as u16 + 255) / 2) as u8,
-        ((accent.b() as u16 + 255) / 2) as u8,
+        u8::try_from(u16::midpoint(u16::from(accent.r()), 255)).unwrap_or(255),
+        u8::try_from(u16::midpoint(u16::from(accent.g()), 255)).unwrap_or(255),
+        u8::try_from(u16::midpoint(u16::from(accent.b()), 255)).unwrap_or(255),
     );
+
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let to_byte = |v: f32| -> u8 {
+        // Clamp to [0, 255] and round to nearest before narrowing
+        v.clamp(0.0, 255.0).round() as u8
+    };
 
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 0.0; // No spacing between characters
 
+        #[allow(clippy::cast_precision_loss)]
+        let char_count = (text.len().saturating_sub(1)).max(1) as f32;
+
         for (i, ch) in text.chars().enumerate() {
-            let t = i as f32 / (text.len() - 1).max(1) as f32;
+            #[allow(clippy::cast_precision_loss)]
+            let t = i as f32 / char_count;
 
             // Interpolate color
-            let r = (start_color.r() as f32 * (1.0 - t) + end_color.r() as f32 * t) as u8;
-            let g = (start_color.g() as f32 * (1.0 - t) + end_color.g() as f32 * t) as u8;
-            let b = (start_color.b() as f32 * (1.0 - t) + end_color.b() as f32 * t) as u8;
+            let r =
+                to_byte(f32::from(start_color.r()).mul_add(1.0 - t, f32::from(end_color.r()) * t));
+            let g =
+                to_byte(f32::from(start_color.g()).mul_add(1.0 - t, f32::from(end_color.g()) * t));
+            let b =
+                to_byte(f32::from(start_color.b()).mul_add(1.0 - t, f32::from(end_color.b()) * t));
             let color = egui::Color32::from_rgb(r, g, b);
 
             ui.label(
@@ -35,7 +48,7 @@ fn render_gradient_text(ui: &mut egui::Ui, text: &str, font_size: f32) {
 pub fn render_header(
     ui: &mut egui::Ui,
     show_options_window: &mut bool,
-    error_message: &Option<String>,
+    error_message: Option<&String>,
     logo_texture: Option<&egui::TextureHandle>,
 ) {
     // Modern header with background
@@ -92,7 +105,7 @@ pub fn render_header(
     if let Some(error) = error_message {
         ui.horizontal(|ui| {
             ui.add_space(20.0);
-            ui.colored_label(egui::Color32::RED, format!("⚠ {}", error));
+            ui.colored_label(egui::Color32::RED, format!("⚠ {error}"));
         });
         ui.add_space(8.0);
     }
@@ -129,13 +142,13 @@ pub fn render_stats_bar(ui: &mut egui::Ui, total: usize, showing: usize) {
     ui.horizontal(|ui| {
         ui.add_space(20.0);
         ui.label(
-            egui::RichText::new(format!(" Total: {}", total))
+            egui::RichText::new(format!(" Total: {total}"))
                 .weak()
                 .size(12.0),
         );
         ui.add_space(10.0);
         ui.label(
-            egui::RichText::new(format!(" Showing: {}", showing))
+            egui::RichText::new(format!(" Showing: {showing}"))
                 .weak()
                 .size(12.0),
         );

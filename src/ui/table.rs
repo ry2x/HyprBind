@@ -1,6 +1,6 @@
 use super::types::{ColumnVisibility, SortColumn, SortState};
-use crate::icons::get_icon;
-use crate::models::KeyBindEntry;
+use crate::hyprland::KeyBindEntry;
+use crate::ui::styling::icons::get_icon;
 use eframe::egui;
 use egui_extras::{Column, TableBuilder};
 
@@ -28,7 +28,6 @@ pub fn render_sort_button(
     };
     button_text.push_str(sort_indicator);
 
-    let _is_active = sort_column == column && sort_state != SortState::None;
     let button = egui::Button::new(egui::RichText::new(button_text).strong().size(14.0))
         .fill(egui::Color32::TRANSPARENT)
         .stroke(egui::Stroke::new(1.0, ui.visuals().hyperlink_color));
@@ -59,7 +58,9 @@ fn render_header_cell(
     clicked
 }
 
-fn is_nerd_font_icon(text: &str) -> bool {
+// Allow redundant_pub_crate This is for only test
+#[allow(clippy::redundant_pub_crate)]
+pub(crate) fn is_nerd_font_icon(text: &str) -> bool {
     // Check if text contains Nerd Font Unicode characters (Private Use Areas)
     text.chars().any(|c| {
         let code = c as u32;
@@ -68,7 +69,7 @@ fn is_nerd_font_icon(text: &str) -> bool {
             // SMP PUA (Supplementary Multilingual Plane Private Use Area)
             || (0xF0000..=0xFFFFD).contains(&code)
             // SSP PUA (Supplementary Special-purpose Plane Private Use Area)
-            || (0x100000..=0x10FFFD).contains(&code)
+            || (0x0010_0000..=0x0010_FFFD).contains(&code)
     })
 }
 
@@ -159,14 +160,33 @@ fn render_command_cell(ui: &mut egui::Ui, entry: &KeyBindEntry) {
         .on_hover_text(&entry.command);
 }
 
-pub fn render_table(
-    ui: &mut egui::Ui,
-    filtered: &[KeyBindEntry],
+fn add_table_column(
+    table: TableBuilder<'_>,
+    is_last: bool,
+    initial_width: f32,
+    min_width: f32,
+) -> TableBuilder<'_> {
+    if is_last {
+        table.column(
+            Column::remainder()
+                .at_least(min_width)
+                .resizable(true)
+                .clip(true),
+        )
+    } else {
+        table.column(
+            Column::initial(initial_width)
+                .at_least(min_width)
+                .resizable(true)
+                .clip(true),
+        )
+    }
+}
+
+fn build_table_columns<'a>(
+    mut table: TableBuilder<'a>,
     column_visibility: &ColumnVisibility,
-    sort_column: SortColumn,
-    sort_state: SortState,
-    selected_row: Option<usize>,
-) -> Option<SortColumn> {
+) -> TableBuilder<'a> {
     let visible_count = [
         column_visibility.keybind,
         column_visibility.description,
@@ -176,71 +196,42 @@ pub fn render_table(
     .filter(|&&v| v)
     .count();
 
-    // Remove vertical lines by making separator invisible
-    ui.style_mut().visuals.widgets.noninteractive.bg_stroke = egui::Stroke::NONE;
-    ui.style_mut().visuals.widgets.inactive.bg_stroke = egui::Stroke::NONE;
-
-    let mut table = TableBuilder::new(ui)
-        .striped(true)
-        .resizable(true)
-        .cell_layout(egui::Layout::left_to_right(egui::Align::Center));
-
     let mut col_index = 0;
 
     if column_visibility.keybind {
         col_index += 1;
-        if col_index == visible_count {
-            table = table.column(
-                Column::remainder()
-                    .at_least(100.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        } else {
-            table = table.column(
-                Column::initial(250.0)
-                    .at_least(100.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        }
+        table = add_table_column(table, col_index == visible_count, 250.0, 100.0);
     }
     if column_visibility.description {
         col_index += 1;
-        if col_index == visible_count {
-            table = table.column(
-                Column::remainder()
-                    .at_least(200.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        } else {
-            table = table.column(
-                Column::initial(300.0)
-                    .at_least(100.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        }
+        table = add_table_column(table, col_index == visible_count, 300.0, 100.0);
     }
     if column_visibility.command {
         col_index += 1;
-        if col_index == visible_count {
-            table = table.column(
-                Column::remainder()
-                    .at_least(200.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        } else {
-            table = table.column(
-                Column::initial(300.0)
-                    .at_least(100.0)
-                    .resizable(true)
-                    .clip(true),
-            );
-        }
+        table = add_table_column(table, col_index == visible_count, 300.0, 200.0);
     }
+
+    table
+}
+
+pub fn render_table(
+    ui: &mut egui::Ui,
+    filtered: &[KeyBindEntry],
+    column_visibility: &ColumnVisibility,
+    sort_column: SortColumn,
+    sort_state: SortState,
+    selected_row: Option<usize>,
+) -> Option<SortColumn> {
+    // Remove vertical lines by making separator invisible
+    ui.style_mut().visuals.widgets.noninteractive.bg_stroke = egui::Stroke::NONE;
+    ui.style_mut().visuals.widgets.inactive.bg_stroke = egui::Stroke::NONE;
+
+    let table = TableBuilder::new(ui)
+        .striped(true)
+        .resizable(true)
+        .cell_layout(egui::Layout::left_to_right(egui::Align::Center));
+
+    let table = build_table_columns(table, column_visibility);
 
     let mut clicked_column = None;
 
@@ -292,13 +283,13 @@ pub fn render_table(
                     if column_visibility.keybind {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
-                            if let Some(sel) = selected_row {
-                                if sel == idx {
-                                    let rect = ui.max_rect();
-                                    let hl = ui.visuals().selection.bg_fill;
-                                    ui.painter().rect_filled(rect, 0.0, hl);
-                                    ui.scroll_to_rect(rect, None);
-                                }
+                            if let Some(sel) = selected_row
+                                && sel == idx
+                            {
+                                let rect = ui.max_rect();
+                                let hl = ui.visuals().selection.bg_fill;
+                                ui.painter().rect_filled(rect, 0.0, hl);
+                                ui.scroll_to_rect(rect, None);
                             }
                             render_keybind_cell(ui, entry);
                         });
@@ -306,12 +297,12 @@ pub fn render_table(
                     if column_visibility.description {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
-                            if let Some(sel) = selected_row {
-                                if sel == idx {
-                                    let rect = ui.max_rect();
-                                    let hl = ui.visuals().selection.bg_fill;
-                                    ui.painter().rect_filled(rect, 0.0, hl);
-                                }
+                            if let Some(sel) = selected_row
+                                && sel == idx
+                            {
+                                let rect = ui.max_rect();
+                                let hl = ui.visuals().selection.bg_fill;
+                                ui.painter().rect_filled(rect, 0.0, hl);
                             }
                             render_description_cell(ui, entry);
                         });
@@ -319,12 +310,12 @@ pub fn render_table(
                     if column_visibility.command {
                         row.col(|ui| {
                             ui.set_min_height(32.0);
-                            if let Some(sel) = selected_row {
-                                if sel == idx {
-                                    let rect = ui.max_rect();
-                                    let hl = ui.visuals().selection.bg_fill;
-                                    ui.painter().rect_filled(rect, 0.0, hl);
-                                }
+                            if let Some(sel) = selected_row
+                                && sel == idx
+                            {
+                                let rect = ui.max_rect();
+                                let hl = ui.visuals().selection.bg_fill;
+                                ui.painter().rect_filled(rect, 0.0, hl);
                             }
                             render_command_cell(ui, entry);
                         });
@@ -334,37 +325,4 @@ pub fn render_table(
         });
 
     clicked_column
-}
-
-#[cfg(test)]
-mod tests {
-
-    use super::is_nerd_font_icon;
-
-    #[test]
-    fn test_is_nerd_font_icon() {
-        // Test with NerdFonts
-        let nerd_fonts: [&str; 21] = [
-            "", "󰘶", "󰌑", "󰜱", "󰜴", "󰜷", "󰜮", "󱕐", "󱕑", "󰍽", "󰍽", "", "", "", "󰍭", "󰃠", "󰃞",
-            "󰙡", "", "", "󰙣",
-        ];
-
-        let non_nerd_fonts: [&str; 5] = [";", "A", "DEL", "TAB", "1"];
-
-        for icon in nerd_fonts.iter() {
-            assert!(
-                is_nerd_font_icon(icon),
-                "Expected '{}' to be identified as a Nerd Font icon",
-                icon
-            );
-        }
-
-        for text in non_nerd_fonts.iter() {
-            assert!(
-                !is_nerd_font_icon(text),
-                "Expected '{}' to NOT be identified as a Nerd Font icon",
-                text
-            );
-        }
-    }
 }

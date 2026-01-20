@@ -1,27 +1,8 @@
-use crate::models::{KeyBindEntry, KeyBindings};
+use super::models::{KeyBindEntry, KeyBindings};
 use std::collections::HashMap;
-use std::io;
-use std::process::Command;
-
-/// Parse the output of hyprctl binds
-pub fn parse_hyprctl_binds() -> io::Result<KeyBindings> {
-    let output = Command::new("hyprctl").arg("binds").output()?;
-
-    if !output.status.success() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "hyprctl binds command failed",
-        ));
-    }
-
-    let output_str = String::from_utf8_lossy(&output.stdout);
-    let keybindings = parse_binds_output(&output_str);
-
-    Ok(keybindings)
-}
 
 /// Parse the output text from hyprctl binds
-fn parse_binds_output(output: &str) -> KeyBindings {
+pub fn parse_binds_output(output: &str) -> KeyBindings {
     let mut keybindings = KeyBindings::new();
     let blocks: Vec<&str> = output.split("\n\n").collect();
 
@@ -61,7 +42,7 @@ fn parse_bind_block(block: &str) -> Option<KeyBindEntry> {
     let command = if arg.is_empty() {
         dispatcher
     } else {
-        format!("{} {}", dispatcher, arg)
+        format!("{dispatcher} {arg}")
     };
 
     Some(KeyBindEntry::new(modifiers, key, command, description))
@@ -88,37 +69,5 @@ fn modmask_to_string(modmask: u32) -> String {
         String::new()
     } else {
         mods.join("+")
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_modmask_to_string() {
-        assert_eq!(modmask_to_string(64), "SUPER");
-        assert_eq!(modmask_to_string(65), "SUPER+SHIFT");
-        assert_eq!(modmask_to_string(72), "SUPER+ALT");
-        assert_eq!(modmask_to_string(0), "");
-    }
-
-    #[test]
-    fn test_parse_bind_block() {
-        let block = r#"bind
-	modmask: 64
-	submap: 
-	key: Return
-	keycode: 0
-	catchall: false
-	description: Terminal
-	dispatcher: exec
-	arg: kitty"#;
-
-        let entry = parse_bind_block(block).unwrap();
-        assert_eq!(entry.modifiers, "SUPER");
-        assert_eq!(entry.key, "Return");
-        assert_eq!(entry.command, "exec kitty");
-        assert_eq!(entry.description, "Terminal");
     }
 }

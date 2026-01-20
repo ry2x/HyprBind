@@ -1,4 +1,4 @@
-use crate::icons::get_icon;
+use crate::ui::styling::icons::get_icon;
 use serde::{Deserialize, Serialize};
 
 /// Options for searching keybindings
@@ -33,7 +33,7 @@ pub struct KeyBindEntry {
 }
 
 impl KeyBindEntry {
-    pub fn new(modifiers: String, key: String, command: String, description: String) -> Self {
+    pub const fn new(modifiers: String, key: String, command: String, description: String) -> Self {
         Self {
             modifiers,
             key,
@@ -64,7 +64,7 @@ pub struct KeyBindings {
 }
 
 impl KeyBindings {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             entries: Vec::new(),
         }
@@ -72,18 +72,6 @@ impl KeyBindings {
 
     pub fn add_entry(&mut self, entry: KeyBindEntry) {
         self.entries.push(entry);
-    }
-
-    /// Filter entries by search query
-    pub fn filter(&self, query: &str, options: &SearchOptions) -> Vec<&KeyBindEntry> {
-        if query.is_empty() {
-            self.entries.iter().collect()
-        } else {
-            self.entries
-                .iter()
-                .filter(|e| e.matches(query, options))
-                .collect()
-        }
     }
 
     /// Export as JSON
@@ -113,11 +101,11 @@ impl KeyBindings {
                 } else if !entry.command.is_empty() {
                     entry.command.clone()
                 } else {
-                    "".to_string()
+                    String::new()
                 };
 
                 // Output line "keybind : display_text"
-                format!("{} : {}", keybind, display_text)
+                format!("{keybind} : {display_text}")
             })
             .collect::<Vec<String>>()
             .join("\n")
@@ -127,61 +115,5 @@ impl KeyBindings {
 impl Default for KeyBindings {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_to_dmenu() {
-        // 1. No modifier, with description
-        let entry1 = KeyBindEntry::new(
-            "".to_string(),
-            "Return".to_string(),
-            "exec kitty".to_string(),
-            "Terminal".to_string(),
-        );
-        // 2. With modifiers, with description
-        let entry2 = KeyBindEntry::new(
-            "SUPER+SHIFT".to_string(),
-            "Q".to_string(),
-            "killactive".to_string(),
-            "Kill window".to_string(),
-        );
-        // 3. With modifiers, no description
-        let entry3 = KeyBindEntry::new(
-            "CTRL+ALT".to_string(),
-            "F1".to_string(),
-            "exec firefox".to_string(),
-            "".to_string(),
-        );
-        // 4. With modifiers, no description, no command
-        let entry4 = KeyBindEntry::new(
-            "CTRL+ALT".to_string(),
-            "F2".to_string(),
-            "".to_string(),
-            "".to_string(),
-        );
-
-        let kb = KeyBindings {
-            entries: vec![entry1, entry2, entry3, entry4],
-        };
-
-        let dmenu = kb.to_dmenu();
-        let lines: Vec<&str> = dmenu.lines().collect();
-
-        // 1. No modifier, icon only
-        assert_eq!(lines[0], "󰌑 : Terminal");
-
-        // 2. Modifiers, icons
-        assert_eq!(lines[1], " +  󰘶  + Q : Kill window");
-
-        // 3. Modifiers, fallback to key text if not in icon table
-        assert_eq!(lines[2], "CTRL + ALT + F1 : exec firefox");
-
-        // 4. Modifiers, no description, no command
-        assert_eq!(lines[3], "CTRL + ALT + F2 : ");
     }
 }

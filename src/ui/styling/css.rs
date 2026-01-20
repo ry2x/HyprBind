@@ -2,48 +2,65 @@ use eframe::egui;
 use std::fs;
 use std::path::PathBuf;
 
-fn parse_hex_color(s: &str) -> Option<egui::Color32> {
-    let s = s.trim();
+const DEFAULT_RADIUS: u8 = 6;
+const DEFAULT_SPACING: i8 = 6;
+
+fn parse_hex_color(hex: &str) -> Option<egui::Color32> {
+    let s = hex.trim();
     let hex = s.strip_prefix('#').unwrap_or(s);
-    let (r, g, b, a) = match hex.len() {
+    let (red, green, blue, alpha) = match hex.len() {
         6 => {
-            let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
-            let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
-            let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
-            (r, g, b, 255)
+            let red = u8::from_str_radix(&hex[0..2], 16).ok()?;
+            let green = u8::from_str_radix(&hex[2..4], 16).ok()?;
+            let blue = u8::from_str_radix(&hex[4..6], 16).ok()?;
+            (red, green, blue, 255)
         }
         8 => {
-            let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
-            let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
-            let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
-            let a = u8::from_str_radix(&hex[6..8], 16).ok()?;
-            (r, g, b, a)
+            let red = u8::from_str_radix(&hex[0..2], 16).ok()?;
+            let green = u8::from_str_radix(&hex[2..4], 16).ok()?;
+            let blue = u8::from_str_radix(&hex[4..6], 16).ok()?;
+            let alpha = u8::from_str_radix(&hex[6..8], 16).ok()?;
+            (red, green, blue, alpha)
         }
         _ => return None,
     };
-    Some(egui::Color32::from_rgba_unmultiplied(r, g, b, a))
+    Some(egui::Color32::from_rgba_unmultiplied(
+        red, green, blue, alpha,
+    ))
 }
 
-fn parse_number(s: &str) -> Option<f32> {
-    s.trim().parse::<f32>().ok()
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn parse_radius(s: &str) -> Option<u8> {
+    s.trim().parse::<f32>().ok().map(|val| {
+        // Floor then clamp to u8 range to avoid overflow and sign issues
+        val.clamp(0.0, 255.0).floor() as u8
+    })
+}
+
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn parse_spacing(s: &str) -> Option<i8> {
+    s.trim().parse::<f32>().ok().map(|val| {
+        // Floor then clamp to i8 range to avoid overflow and sign issues
+        val.clamp(f32::from(i8::MIN), f32::from(i8::MAX)).floor() as i8
+    })
 }
 
 fn extract_vars(contents: &str) -> std::collections::HashMap<String, String> {
     let mut map = std::collections::HashMap::new();
     for line in contents.lines() {
         let line = line.trim();
-        if line.starts_with("--") {
-            if let Some(colon) = line.find(':') {
-                let key = &line[..colon].trim();
-                let mut value = &line[colon + 1..];
-                if let Some(semi) = value.find(';') {
-                    value = &value[..semi];
-                }
-                map.insert(
-                    key.trim().trim_start_matches('-').to_string(),
-                    value.trim().to_string(),
-                );
+        if line.starts_with("--")
+            && let Some(colon) = line.find(':')
+        {
+            let key = &line[..colon].trim();
+            let mut value = &line[colon + 1..];
+            if let Some(semi) = value.find(';') {
+                value = &value[..semi];
             }
+            map.insert(
+                key.trim().trim_start_matches('-').to_string(),
+                value.trim().to_string(),
+            );
         }
         // Also handle lines within :root { ... }
         if let Some(start) = line.find("--") {
@@ -67,7 +84,7 @@ fn extract_vars(contents: &str) -> std::collections::HashMap<String, String> {
 }
 
 pub fn apply_from_path(ctx: &egui::Context, path: &str) -> Result<(), String> {
-    let contents = fs::read_to_string(path).map_err(|e| format!("Failed to read CSS: {}", e))?;
+    let contents = fs::read_to_string(path).map_err(|e| format!("Failed to read CSS: {e}"))?;
     let vars = extract_vars(&contents);
 
     // Expected variables (all optional):
@@ -78,8 +95,8 @@ pub fn apply_from_path(ctx: &egui::Context, path: &str) -> Result<(), String> {
     let accent = vars.get("accent").and_then(|v| parse_hex_color(v));
     let stroke = vars.get("stroke").and_then(|v| parse_hex_color(v));
     let selection = vars.get("selection").and_then(|v| parse_hex_color(v));
-    let radius = vars.get("radius").and_then(|v| parse_number(v));
-    let spacing = vars.get("spacing").and_then(|v| parse_number(v));
+    let radius = vars.get("radius").and_then(|v| parse_radius(v));
+    let spacing = vars.get("spacing").and_then(|v| parse_spacing(v));
 
     let mut style = (*ctx.style()).clone();
     let mut visuals = style.visuals.clone();
@@ -118,9 +135,10 @@ pub fn apply_from_path(ctx: &egui::Context, path: &str) -> Result<(), String> {
             w.bg_stroke.color = stroke_c;
         }
         if let Some(r) = radius {
-            w.corner_radius = egui::CornerRadius::same(r as u8);
+            w.corner_radius = egui::CornerRadius::same(r);
         }
     };
+
     apply_widget(&mut visuals.widgets.noninteractive);
     apply_widget(&mut visuals.widgets.inactive);
     apply_widget(&mut visuals.widgets.hovered);
@@ -128,12 +146,11 @@ pub fn apply_from_path(ctx: &egui::Context, path: &str) -> Result<(), String> {
     apply_widget(&mut visuals.widgets.open);
 
     if let Some(sp) = spacing {
-        style.spacing.item_spacing = egui::vec2(sp, sp);
-        style.spacing.button_padding = egui::vec2(sp, sp);
-        style.spacing.menu_margin = egui::Margin::same(sp as i8);
-        style.spacing.window_margin = egui::Margin::same(sp as i8);
+        style.spacing.item_spacing = egui::vec2(f32::from(sp), f32::from(sp));
+        style.spacing.button_padding = egui::vec2(f32::from(sp), f32::from(sp));
+        style.spacing.menu_margin = egui::Margin::same(sp);
+        style.spacing.window_margin = egui::Margin::same(sp);
     }
-
     style.visuals = visuals;
     ctx.set_style(style);
 
@@ -143,13 +160,15 @@ pub fn apply_from_path(ctx: &egui::Context, path: &str) -> Result<(), String> {
 pub fn default_css_path() -> PathBuf {
     // ~/.config/hyprbind/hyprbind-theme.css
     #[allow(deprecated)]
-    let mut dir = if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
-        PathBuf::from(xdg)
-    } else if let Ok(home) = std::env::var("HOME") {
-        PathBuf::from(home).join(".config")
-    } else {
-        PathBuf::from(".config")
-    };
+    let mut dir = std::env::var("XDG_CONFIG_HOME").map_or_else(
+        |_| {
+            std::env::var("HOME").map_or_else(
+                |_| PathBuf::from(".config"),
+                |home| PathBuf::from(home).join(".config"),
+            )
+        },
+        PathBuf::from,
+    );
     dir.push("hyprbind");
     dir.push("hyprbind-theme.css");
     dir
@@ -168,7 +187,7 @@ pub fn has_custom_theme() -> bool {
 
 pub fn write_default_css(overwrite: bool) -> Result<PathBuf, String> {
     let dir = crate::config::config_dir();
-    fs::create_dir_all(&dir).map_err(|e| format!("Failed to create config dir: {}", e))?;
+    fs::create_dir_all(&dir).map_err(|e| format!("Failed to create config dir: {e}"))?;
     let path = default_css_path();
     if path.exists() && !overwrite {
         return Err(format!(
@@ -183,10 +202,9 @@ pub fn write_default_css(overwrite: bool) -> Result<PathBuf, String> {
         .unwrap_or(0);
 
     let css = format!(
-        "/* HyprBind default CSS generated at epoch {} */\n:root {{\n  --bg: #0f1117;\n  --fg: #d4d7dc;\n  --panel: #151922;\n  --accent: #7aa2f7;\n  --stroke: #3b4261;\n  --selection: #283457;\n  --radius: 6;\n  --spacing: 6;\n}}\n",
-        epoch
+        "/* HyprBind default CSS generated at epoch {epoch} */\n:root {{\n  --bg: #0f1117;\n  --fg: #d4d7dc;\n  --panel: #151922;\n  --accent: #7aa2f7;\n  --stroke: #3b4261;\n  --selection: #283457;\n  --radius: {DEFAULT_RADIUS};\n  --spacing: {DEFAULT_SPACING};\n}}\n"
     );
 
-    fs::write(&path, css).map_err(|e| format!("Failed to write CSS: {}", e))?;
+    fs::write(&path, css).map_err(|e| format!("Failed to write CSS: {e}"))?;
     Ok(path)
 }

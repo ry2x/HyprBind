@@ -5,7 +5,7 @@ use egui::epaint::text::{FontInsert, InsertFontFamily};
 pub fn setup_custom_fonts(ctx: &egui::Context) {
     // Load Firple fonts (Nerd Font & Japanese font)
     let font_data: egui::FontData =
-        egui::FontData::from_static(include_bytes!("../assets/Firple-Bold.ttf"));
+        egui::FontData::from_static(include_bytes!("../../../assets/Firple-Bold.ttf"));
 
     ctx.add_font(FontInsert::new(
         "Firple Bold",
