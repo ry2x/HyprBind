@@ -7,7 +7,6 @@ components = [
     "rust-analysis",
     "rust-docs",
     "rust-src",
-    "cargo-audit"
 ]
 
 targets = [
