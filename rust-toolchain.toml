@@ -6,7 +6,8 @@ components = [
     "clippy",
     "rust-analysis",
     "rust-docs",
-    "rust-src"
+    "rust-src",
+    "cargo-audit"
 ]
 
 targets = [
