@@ -20,11 +20,11 @@ fn render_gradient_text(ui: &mut egui::Ui, text: &str, font_size: f32) {
         ui.spacing_mut().item_spacing.x = 0.0; // No spacing between characters
 
         #[allow(clippy::cast_precision_loss)]
-        let denom = (text.len().saturating_sub(1)).max(1) as f32;
+        let char_count = (text.len().saturating_sub(1)).max(1) as f32;
 
         for (i, ch) in text.chars().enumerate() {
             #[allow(clippy::cast_precision_loss)]
-            let t = i as f32 / denom;
+            let t = i as f32 / char_count;
 
             // Interpolate color
             let r =
