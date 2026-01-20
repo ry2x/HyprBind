@@ -58,6 +58,8 @@ fn render_header_cell(
     clicked
 }
 
+// Allow redundant_pub_crate This is for only test
+#[allow(clippy::redundant_pub_crate)]
 pub(crate) fn is_nerd_font_icon(text: &str) -> bool {
     // Check if text contains Nerd Font Unicode characters (Private Use Areas)
     text.chars().any(|c| {
