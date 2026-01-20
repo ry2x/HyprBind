@@ -1,6 +1,6 @@
 [package]
 name = "HyprBind"
-version = "0.1.4-alpha"
+version = "0.1.4"
 edition = "2024"
 license = "MIT AND OFL-1.1"
 authors = ["Ry2X <45420571+ry2x@users.noreply.github.com>"]
