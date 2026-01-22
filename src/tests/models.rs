@@ -2,6 +2,7 @@
 mod models_tests {
     use crate::hyprland::{KeyBindEntry, KeyBindings};
 
+    /// Validates dmenu format export with icon mapping
     #[test]
     fn test_to_dmenu() {
         // 1. No modifier, with description

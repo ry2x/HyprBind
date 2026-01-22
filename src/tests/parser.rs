@@ -2,6 +2,7 @@
 mod parser_tests {
     use crate::hyprland::parser::parse_binds_output;
 
+    /// Tests modmask bitmask to human-readable string conversion
     #[test]
     fn test_modmask_conversion() {
         let sample = r"bind
@@ -19,6 +20,7 @@ mod parser_tests {
         assert_eq!(kb.entries[0].modifiers, "SUPER");
     }
 
+    /// Validates parsing of binds with multiple modifier keys
     #[test]
     fn test_multiple_modifiers() {
         let sample = r"bind
@@ -37,6 +39,7 @@ mod parser_tests {
         assert_eq!(kb.entries[0].description, "Kill window");
     }
 
+    /// Tests complete parsing of a single bind block with all fields
     #[test]
     fn test_parse_bind_block() {
         let block = r"bind

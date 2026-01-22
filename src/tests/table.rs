@@ -2,6 +2,7 @@
 mod table_tests {
     use crate::ui::table::is_nerd_font_icon;
 
+    /// Verifies NerdFont icon detection logic
     #[test]
     fn test_is_nerd_font_icon() {
         // Test with NerdFonts
