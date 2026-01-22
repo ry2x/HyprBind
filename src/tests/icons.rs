@@ -2,6 +2,7 @@
 mod icons_tests {
     use crate::ui::styling::icons::get_icon;
 
+    /// Tests icon mapping for various keys and modifiers
     #[test]
     fn test_get_icon() {
         let cases: [(&str, &str); 28] = [
